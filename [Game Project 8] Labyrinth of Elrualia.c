@@ -5,14 +5,16 @@
     /* Prototyping */
 void init();
 void run();
+void events();
+void player_movement();
 void init_map();
 void draw();
 void draw_map();
+int PLAYING = 1;
 
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 int WIDTH = 800; int HEIGHT = 600;
-int PLAYING = 1;
 int FPS = 60;
 int TILESIZE = 32;
 int GRIDWIDTH;
@@ -145,13 +147,14 @@ int main()
 
 void init()
 {
+    draw_map();
+
     GRIDWIDTH   = WIDTH/TILESIZE;
     GRIDHEIGHT  = HEIGHT / TILESIZE;
 }
 
 void run()
 {
-    draw();
     while (PLAYING==1)
     {
         events();
@@ -161,7 +164,66 @@ void run()
 
 void events()
 {
-    movement();
+    player_movement();
+}
+
+
+void player_movement()
+{
+    int movement;
+    printf("Enter a number [2/4/6/8] = [Down/Left/Right/Up]: ");
+    scanf("%d", &movement);
+
+    switch (movement)
+    {
+        case 2:
+            if (player_position[0] < 20)
+            {
+                player_position[0]++;
+            }
+            else
+            {
+                printf("Impossible to move bot\n");
+            }
+            break;
+
+        case 4:
+            if (player_position[1] > 0)
+            {
+                player_position[1]--;
+            }
+            else
+            {
+                printf("Impossible to move left\n");
+            }
+            break;
+
+        case 6:
+            if (player_position[1] < 20)
+            {
+                player_position[1]++;
+            }
+            else
+            {
+                printf("Impossible to move right\n");
+            }
+            break;
+
+        case 8:
+            if (player_position[0] > 0)
+            {
+                player_position[0]--;
+            }
+            else
+            {
+                printf("Impossible to move top\n");
+            }
+            break;
+
+        default:
+            printf("Invalid command\n");
+    }
+
 }
 
 void draw()
@@ -187,13 +249,5 @@ void draw_map()
         }
         printf("\n");
     }
-}
-
-
-int movement()
-{
-    int movement;
-    printf("Entrez un mouvement (2/4/6/8)");
-    scanf("%d", movement);
-    return movement;
+    printf("\n");
 }
