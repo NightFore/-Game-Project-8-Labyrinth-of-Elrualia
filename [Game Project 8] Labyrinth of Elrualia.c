@@ -10,6 +10,8 @@ void player_movement();
 void init_map();
 void draw();
 void draw_map();
+void player_information();
+int player_collide();
 int PLAYING = 1;
 
     /* Game Settings */
@@ -23,10 +25,11 @@ int GRIDHEIGHT;
 
     /* Player Settings*/
 char PLAYER_IMG[]       = "character_pipoya_male_01_2.png";
-int PLAYER_INDEX         = 1;
+int PLAYER_INDEX        = 1;
 int PLAYER_HIT_RECT[]   = {0, 0, 35, 35};
 int PLAYER_HEALTH       = 3;
 int PLAYER_SPEED        = 300;
+int PLAYER_COIN         = 0;
 
 
     /* Mob Settings */
@@ -167,6 +170,12 @@ void events()
     player_movement();
 }
 
+void draw()
+{
+    draw_map();
+    player_information();
+}
+
 
 void player_movement()
 {
@@ -176,59 +185,55 @@ void player_movement()
 
     switch (movement)
     {
-        case 2:
-            if (player_position[0] < 20)
-            {
-                player_position[0]++;
-            }
-            else
-            {
-                printf("Impossible to move bot\n");
-            }
-            break;
-
+        /* Left */
         case 4:
-            if (player_position[1] > 0)
+            player_position[1]--;
+            if (player_position[1] < 0 || !(player_collide()))
             {
-                player_position[1]--;
-            }
-            else
-            {
+                player_position[1]++;
                 printf("Impossible to move left\n");
             }
             break;
 
+        /* Right */
         case 6:
-            if (player_position[1] < 20)
+            player_position[1]++;
+            if (player_position[1] >= 20 || !(player_collide()))
             {
-                player_position[1]++;
-            }
-            else
-            {
+                player_position[1]--;
                 printf("Impossible to move right\n");
             }
             break;
 
-        case 8:
-            if (player_position[0] > 0)
+        /* Bot */
+        case 2:
+            player_position[0]++;
+            if (player_position[0] >= 20 || !(player_collide()))
             {
                 player_position[0]--;
+                printf("Impossible to move bot\n");
             }
-            else
+            break;
+
+        /* Top */
+        case 8:
+            player_position[0]--;
+            if (player_position[0] < 0 || !(player_collide()))
             {
+                player_position[0]++;
                 printf("Impossible to move top\n");
             }
+            break;
+
+        case 0:
+            printf("Shutting down the game...\n");
+            PLAYING = 0;
             break;
 
         default:
             printf("Invalid command\n");
     }
 
-}
-
-void draw()
-{
-    draw_map();
 }
 
 void draw_map()
@@ -250,4 +255,25 @@ void draw_map()
         printf("\n");
     }
     printf("\n");
+}
+
+void player_information()
+{
+    printf("Player Health: %d\n", PLAYER_HEALTH);
+    printf("Player Coin: %d\n", PLAYER_COIN);
+    printf("\n");
+}
+
+
+int player_collide()
+{
+    /* 2: Tree | 3: Rock */
+    if ( map_1[player_position[0]][player_position[1]] != 2 || map_1[player_position[0]][player_position[1]] != 3 )
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
