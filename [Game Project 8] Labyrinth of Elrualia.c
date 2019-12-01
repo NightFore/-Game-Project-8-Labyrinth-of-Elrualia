@@ -2,6 +2,13 @@
 #include <stdlib.h>
 
 /* Settings */
+    /* Prototyping */
+void init();
+void run();
+void init_map();
+void draw();
+void draw_map();
+
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 int WIDTH = 800; int HEIGHT = 600;
@@ -97,10 +104,41 @@ int C_INTERFACE[]   = {140, 205, 245};
 
 
 
+    /* Temporary */
+int map_1[20][20] =
+    {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5},
+    {0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 3},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 8, 8, 0, 0},
+    {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
+    {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+    {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0},
+    {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
+    };
 
 
-
-
+int main()
+{
+    init();
+    run();
+    printf("Project Title: %s\n", PROJECT_TITLE);
+    printf("%d %d\n", WIDTH, HEIGHT);
+    printf("%d\n", TILESIZE);
+    printf("%d\n", GRIDWIDTH);
+    printf("%d\n", C_INTERFACE[0]);
+}
 
 void init()
 {
@@ -121,15 +159,7 @@ void run()
 
 void draw()
 {
-    int index_l; int index_c;
-    for (index_l=0; index_l<20; index_l++)
-    {
-        for (index_c=0; index_c<20; index_c++)
-        {
-            printf("%d", index_c);
-        }
-        printf("\n");
-    }
+    draw_map();
 }
 
 void init_map()
@@ -173,28 +203,29 @@ void init_map()
         case 8:
             break;
 
+        /* Player */
+        case 9:
+            break;
+
         default:
             printf("Map Error");
     }
 }
 
 
-
 void draw_map()
 {
-
+    int index_l; int index_c;
+    for (index_l=0; index_l<20; index_l++)
+    {
+        for (index_c=0; index_c<20; index_c++)
+        {
+            printf("%d ", map_1[index_l][index_c]);
+        }
+        printf("\n");
+    }
 }
 
 
-int main()
-{
-    init();
-    run();
-    printf("Project Title: %s\n", PROJECT_TITLE);
-    printf("%d %d\n", WIDTH, HEIGHT);
-    printf("%d\n", TILESIZE);
-    printf("%d\n", GRIDWIDTH);
-    printf("%d\n", C_INTERFACE[0]);
 
 
-}
