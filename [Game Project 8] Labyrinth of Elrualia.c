@@ -188,7 +188,7 @@ void player_movement()
         /* Left */
         case 4:
             player_position[1]--;
-            if (player_position[1] < 0 || !(player_collide()))
+            if (player_position[1] < 0 || player_collide() == 0)
             {
                 player_position[1]++;
                 printf("Impossible to move left\n");
@@ -198,7 +198,7 @@ void player_movement()
         /* Right */
         case 6:
             player_position[1]++;
-            if (player_position[1] >= 20 || !(player_collide()))
+            if (player_position[1] >= 20 || player_collide() == 0)
             {
                 player_position[1]--;
                 printf("Impossible to move right\n");
@@ -208,7 +208,7 @@ void player_movement()
         /* Bot */
         case 2:
             player_position[0]++;
-            if (player_position[0] >= 20 || !(player_collide()))
+            if (player_position[0] >= 20 || player_collide() == 0)
             {
                 player_position[0]--;
                 printf("Impossible to move bot\n");
@@ -218,7 +218,7 @@ void player_movement()
         /* Top */
         case 8:
             player_position[0]--;
-            if (player_position[0] < 0 || !(player_collide()))
+            if (player_position[0] < 0 || player_collide() == 0)
             {
                 player_position[0]++;
                 printf("Impossible to move top\n");
@@ -233,7 +233,6 @@ void player_movement()
         default:
             printf("Invalid command\n");
     }
-
 }
 
 void draw_map()
@@ -268,12 +267,12 @@ void player_information()
 int player_collide()
 {
     /* 2: Tree | 3: Rock */
-    if ( map_1[player_position[0]][player_position[1]] != 2 || map_1[player_position[0]][player_position[1]] != 3 )
+    if ( map_1[player_position[0]][player_position[1]] == 2 || map_1[player_position[0]][player_position[1]] == 3 )
     {
-        return 1;
+        return 0;
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
