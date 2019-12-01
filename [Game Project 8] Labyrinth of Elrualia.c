@@ -3,16 +3,17 @@
 
 /* Settings */
     /* Prototyping */
+int PLAYING = 1;
 void init();
+void init_new();
 void run();
 void events();
 void player_movement();
 void init_map();
 void draw();
 void draw_map();
-void player_information();
+void player_status();
 int player_collide();
-int PLAYING = 1;
 
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
@@ -30,6 +31,8 @@ int PLAYER_HIT_RECT[]   = {0, 0, 35, 35};
 int PLAYER_HEALTH       = 3;
 int PLAYER_SPEED        = 300;
 int PLAYER_COIN         = 0;
+int PLAYER_KEY          = 0;
+
 
 
     /* Mob Settings */
@@ -137,15 +140,18 @@ int map_1[20][20] =
     };
 
 
+
+/* ------------------------------ */
+
+/* ----- Main Functions ----- */
+
+/* ------------------------------ */
+
 int main()
 {
     init();
+    init_new();
     run();
-    printf("Project Title: %s\n", PROJECT_TITLE);
-    printf("%d %d\n", WIDTH, HEIGHT);
-    printf("%d\n", TILESIZE);
-    printf("%d\n", GRIDWIDTH);
-    printf("%d\n", C_INTERFACE[0]);
 }
 
 void init()
@@ -154,6 +160,11 @@ void init()
 
     GRIDWIDTH   = WIDTH/TILESIZE;
     GRIDHEIGHT  = HEIGHT / TILESIZE;
+}
+
+void init_new()
+{
+
 }
 
 void run()
@@ -170,70 +181,20 @@ void events()
     player_movement();
 }
 
+
 void draw()
 {
     draw_map();
-    player_information();
+    player_status();
 }
 
 
-void player_movement()
-{
-    int movement;
-    printf("Enter a number [2/4/6/8] = [Down/Left/Right/Up]: ");
-    scanf("%d", &movement);
 
-    switch (movement)
-    {
-        /* Left */
-        case 4:
-            player_position[1]--;
-            if (player_position[1] < 0 || player_collide() == 0)
-            {
-                player_position[1]++;
-                printf("Impossible to move left\n");
-            }
-            break;
+/* ------------------------------ */
 
-        /* Right */
-        case 6:
-            player_position[1]++;
-            if (player_position[1] >= 20 || player_collide() == 0)
-            {
-                player_position[1]--;
-                printf("Impossible to move right\n");
-            }
-            break;
+/* ----- Secondary Functions ----- */
 
-        /* Bot */
-        case 2:
-            player_position[0]++;
-            if (player_position[0] >= 20 || player_collide() == 0)
-            {
-                player_position[0]--;
-                printf("Impossible to move bot\n");
-            }
-            break;
-
-        /* Top */
-        case 8:
-            player_position[0]--;
-            if (player_position[0] < 0 || player_collide() == 0)
-            {
-                player_position[0]++;
-                printf("Impossible to move top\n");
-            }
-            break;
-
-        case 0:
-            printf("Shutting down the game...\n");
-            PLAYING = 0;
-            break;
-
-        default:
-            printf("Invalid command\n");
-    }
-}
+/* ------------------------------ */
 
 void draw_map()
 {
@@ -256,23 +217,158 @@ void draw_map()
     printf("\n");
 }
 
-void player_information()
+
+
+void player_status()
 {
-    printf("Player Health: %d\n", PLAYER_HEALTH);
-    printf("Player Coin: %d\n", PLAYER_COIN);
+    printf("Health: %d\n", PLAYER_HEALTH);
+    printf("Coin(s): %d\n", PLAYER_COIN);
+    printf("Key(s): %d\n", PLAYER_KEY);
+    printf("\n");
+}
+
+void player_movement()
+{
+    int movement;
+    printf("Enter a movement command [2/4/6/8] = [Down/Left/Right/Up]: ");
+    scanf("%d", &movement);
+    switch (movement)
+    {
+        /* Left */
+        case 4:
+            player_position[1]--;
+            if (player_collide() == 0)
+            {
+                player_position[1]++;
+                printf("You cannot move to the left.\n");
+            }
+            break;
+
+        /* Right */
+        case 6:
+            player_position[1]++;
+            if (player_collide() == 0)
+            {
+                player_position[1]--;
+                printf("You cannot move to the right.\n");
+            }
+            break;
+
+        /* Bot */
+        case 2:
+            player_position[0]++;
+            if (player_collide() == 0)
+            {
+                player_position[0]--;
+                printf("You cannot move to the bot.\n");
+            }
+            break;
+
+        /* Top */
+        case 8:
+            player_position[0]--;
+            if (player_collide() == 0)
+            {
+                player_position[0]++;
+                printf("You cannot move to the top.\n");
+            }
+            break;
+
+        case 0:
+            printf("Shutting down the game...\n");
+            PLAYING = 0;
+            break;
+
+        default:
+            printf("Invalid move command...\n");
+    }
     printf("\n");
 }
 
 
 int player_collide()
 {
-    /* 2: Tree | 3: Rock */
-    if ( map_1[player_position[0]][player_position[1]] == 2 || map_1[player_position[0]][player_position[1]] == 3 )
+    /* Out of Bounds */
+    if (player_position[0] < 0 || player_position[0] >= 20 || player_position[1] < 0 || player_position[1] >= 20)
     {
         return 0;
     }
-    else
+
+
+    /* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
+    int p_p = map_1[player_position[0]][player_position[1]];
+    if (p_p == 0)
     {
+        printf("You walked on Grass.\n");
         return 1;
     }
+
+    if (p_p == 1)
+    {
+        printf("You walked on a Flower.\n");
+        return 1;
+    }
+
+    if (p_p == 2)
+    {
+        printf("You can't walk through a Tree!\n");
+        return 0;
+    }
+
+    if (p_p == 3)
+    {
+        printf("You can't walk through a Rock!\n");
+        return 0;
+    }
+
+    if (p_p == 4)
+    {
+        map_1[player_position[0]][player_position[1]]= 0;
+        printf("You found a Key on the ground!\n");
+        PLAYER_KEY++;
+        return 1;
+    }
+
+    if (p_p == 5)
+    {
+        map_1[player_position[0]][player_position[1]]= 0;
+        printf("You found a Coin on the ground!\n");
+        PLAYER_COIN++;
+        return 1;
+    }
+
+    if (p_p == 6)
+    {
+        printf("You found a Lock on your way!\n");
+        if (PLAYER_KEY > 0)
+        {
+            map_1[player_position[0]][player_position[1]]= 0;
+            printf("You've used a Key to open the Lock!");
+            PLAYER_KEY--;
+            return 1;
+        }
+        else
+        {
+            printf("You don't have any Key to open the Lock!\n");
+            return 0;
+        }
+    }
+
+    if (p_p == 7)
+    {
+        map_1[player_position[0]][player_position[1]]= 0;
+        printf("You stepped on a trap!\nYou lost 1 HP!\n");
+        PLAYER_HEALTH--;
+        return 1;
+    }
+
+    if (p_p == 8)
+    {
+        map_1[player_position[0]][player_position[1]]= 0;
+        printf("You met a monster on your way!\nYou lost 1 HP by fighting him!\n");
+        PLAYER_HEALTH--;
+        return 1;
+    }
+
+
 }
