@@ -5,6 +5,7 @@
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 int WIDTH = 800; int HEIGHT = 600;
+int PLAYING = 1;
 int FPS = 60;
 int TILESIZE = 32;
 int GRIDWIDTH;
@@ -12,32 +13,32 @@ int GRIDHEIGHT;
 
 
     /* Player Settings*/
-char PLAYER_IMG[] = "character_pipoya_male_01_2.png";
-int PLAYER_INDEX = 1;
-int PLAYER_HIT_RECT[] = {0, 0, 35, 35};
-int PLAYER_HEALTH = 3;
-int PLAYER_SPEED = 300;
+char PLAYER_IMG[]       = "character_pipoya_male_01_2.png";
+int PLAYER_INDEX         = 1;
+int PLAYER_HIT_RECT[]   = {0, 0, 35, 35};
+int PLAYER_HEALTH       = 3;
+int PLAYER_SPEED        = 300;
 
 
     /* Mob Settings */
-char MOB_IMG[] = "Mobs_enemy_04_1.png";
-int MOB_HIT_RECT[] = {0, 0, 30, 30};
-int MOB_HEALTH = 2;
-int MOB_SPEED = 125;
-int MOB_DAMAGE = 1;
-int MOB_KNOCKBACK = 20;
-int MOB_RADIUS = 30;
-int MOB_DETECT_RADIUS = 300;
+char MOB_IMG[]          = "Mobs_enemy_04_1.png";
+int MOB_HIT_RECT[]      = {0, 0, 30, 30};
+int MOB_HEALTH          = 2;
+int MOB_SPEED           = 125;
+int MOB_DAMAGE          = 1;
+int MOB_KNOCKBACK       = 20;
+int MOB_RADIUS          = 30;
+int MOB_DETECT_RADIUS   = 300;
 
 
     /* Sword Settings */
-char SWORD_IMG[] = "Sword_PixelHole_x2.png";
-int SWORD_HIT_RECT[] = {0, 0, 30, 30};
-int SWORD_SPEED = 50;
-int SWORD_DAMAGE = 1;
-int SWORD_KNOCKBACK = 20;
-int SWORD_LIFETIME = 300;
-int SWORD_RATE = 500;
+char SWORD_IMG[]        = "Sword_PixelHole_x2.png";
+int SWORD_HIT_RECT[]    = {0, 0, 30, 30};
+int SWORD_SPEED         = 50;
+int SWORD_DAMAGE        = 1;
+int SWORD_KNOCKBACK     = 20;
+int SWORD_LIFETIME      = 300;
+int SWORD_RATE          = 500;
 /* int SWORD_OFFSET[] = vec(20, 0); */
 
 
@@ -72,7 +73,7 @@ int COIN_AMOUNT = 1;
 
 
     /* Sound Directories */
-char BG_MUSIC[] = "music_aaron_krogh_310_world_map.mp3";
+char BG_MUSIC[]                 = "music_aaron_krogh_310_world_map.mp3";
 char SOUNDS_PICK_UP[]           = "sfx_maoudamashii_system23.wav";
 char SOUNDS_SWORD_ATTACK[][100] = {"Battle_Slash_battle01.wav", "Battle_Slash_battle03.wav", "Battle_Slash_battle17.wav"};
 char VOICE_PLAYER_ATTACK[][100] = {"voice_wingless_seraph_jakigan_07_attack.wav", "voice_wingless_seraph_jakigan_08_attack.wav"};
@@ -103,21 +104,97 @@ int C_INTERFACE[]   = {140, 205, 245};
 
 void init()
 {
-    GRIDWIDTH = WIDTH/TILESIZE; GRIDHEIGHT = HEIGHT / TILESIZE;
-
-    printf("%s\n", PROJECT_TITLE);
-    printf("%d\n", GRIDWIDTH);
+    GRIDWIDTH   = WIDTH/TILESIZE;
+    GRIDHEIGHT  = HEIGHT / TILESIZE;
 }
 
+void run()
+{
+    draw();
+    /*
+    while (PLAYING==1)
+    {
+        draw();
+    }
+    */
+}
+
+void draw()
+{
+    int index_l; int index_c;
+    for (index_l=0; index_l<20; index_l++)
+    {
+        for (index_c=0; index_c<20; index_c++)
+        {
+            printf("%d", index_c);
+        }
+        printf("\n");
+    }
+}
+
+void init_map()
+{
+    int PLACEHOLDER = 0;
+    switch(PLACEHOLDER)
+    {
+        /* Grass */
+        case 0:
+            break;
+
+        /* Flower */
+        case 1:
+            break;
+
+        /* Tree */
+        case 2:
+            break;
+
+        /* Rock */
+        case 3:
+            break;
+
+        /* Key */
+        case 4:
+            break;
+
+        /* Coin */
+        case 5:
+            break;
+
+        /* Lock */
+        case 6:
+            break;
+
+        /* Trap */
+        case 7:
+            break;
+
+        /* Monster */
+        case 8:
+            break;
+
+        default:
+            printf("Map Error");
+    }
+}
+
+
+
+void draw_map()
+{
+
+}
 
 
 int main()
 {
     init();
+    run();
     printf("Project Title: %s\n", PROJECT_TITLE);
     printf("%d %d\n", WIDTH, HEIGHT);
     printf("%d\n", TILESIZE);
     printf("%d\n", GRIDWIDTH);
     printf("%d\n", C_INTERFACE[0]);
-}
 
+
+}
