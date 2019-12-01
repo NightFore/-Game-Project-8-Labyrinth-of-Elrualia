@@ -103,6 +103,9 @@ int C_BGCOLOR[]     = {200, 200, 200};
 int C_INTERFACE[]   = {140, 205, 245};
 
 
+    /* Global Variables */
+int player_position[] = {10, 3};
+
 
     /* Temporary */
 int map_1[20][20] =
@@ -120,7 +123,7 @@ int map_1[20][20] =
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
     {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
     {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
@@ -149,69 +152,22 @@ void init()
 void run()
 {
     draw();
-    /*
     while (PLAYING==1)
     {
+        events();
         draw();
     }
-    */
+}
+
+void events()
+{
+    movement();
 }
 
 void draw()
 {
     draw_map();
 }
-
-void init_map()
-{
-    int PLACEHOLDER = 0;
-    switch(PLACEHOLDER)
-    {
-        /* Grass */
-        case 0:
-            break;
-
-        /* Flower */
-        case 1:
-            break;
-
-        /* Tree */
-        case 2:
-            break;
-
-        /* Rock */
-        case 3:
-            break;
-
-        /* Key */
-        case 4:
-            break;
-
-        /* Coin */
-        case 5:
-            break;
-
-        /* Lock */
-        case 6:
-            break;
-
-        /* Trap */
-        case 7:
-            break;
-
-        /* Monster */
-        case 8:
-            break;
-
-        /* Player */
-        case 9:
-            break;
-
-        default:
-            printf("Map Error");
-    }
-}
-
 
 void draw_map()
 {
@@ -220,12 +176,24 @@ void draw_map()
     {
         for (index_c=0; index_c<20; index_c++)
         {
-            printf("%d ", map_1[index_l][index_c]);
+            if (index_l != player_position[0] || index_c != player_position[1])
+            {
+                printf("%d ", map_1[index_l][index_c]);
+            }
+            else
+            {
+                printf("X ");
+            }
         }
         printf("\n");
     }
 }
 
 
-
-
+int movement()
+{
+    int movement;
+    printf("Entrez un mouvement (2/4/6/8)");
+    scanf("%d", movement);
+    return movement;
+}
