@@ -7,21 +7,29 @@ int PLAYING = 1;
 void init();
 void events();
 void draw();
-void load_map(int map[20][20]);
+
 void select_map();
+void load_map(int map[20][20]);
+
 void draw_map();
-void player_movement();
 void status();
+
+void player_movement();
+void win_condition();
 int player_collide();
+
+
 
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
+
 
 
     /* Player Settings*/
 int PLAYER_HEALTH       = 10;
 int PLAYER_COIN         = 0;
 int PLAYER_KEY          = 0;
+
 
 
     /* Global Variables */
@@ -83,6 +91,7 @@ void init()
 void events()
 {
     player_movement();
+    win_condition();
 }
 
 void draw()
@@ -92,10 +101,9 @@ void draw()
 }
 
 
-
 /* ------------------------------ */
 
-/* ----- Secondary Functions ----- */
+/* ----- Initialization Functions ----- */
 
 /* ------------------------------ */
 void select_map()
@@ -124,10 +132,7 @@ void select_map()
         printf("Please select a correct map\n");
         select_map();
     }
-    printf("\n");
 }
-
-
 
 void load_map(int map[20][20])
 {
@@ -139,10 +144,16 @@ void load_map(int map[20][20])
             main_map[l][c] = map[l][c];
         }
     }
+    printf("\n");
 }
 
 
 
+/* ------------------------------ */
+
+/* ----- Draw Functions ----- */
+
+/* ------------------------------ */
 void draw_map()
 {
     int index_l; int index_c;
@@ -166,6 +177,11 @@ void draw_map()
 
 
 
+/* ------------------------------ */
+
+/* ----- Events Functions ----- */
+
+/* ------------------------------ */
 void status()
 {
     printf("Health: %d\n", PLAYER_HEALTH);
@@ -173,17 +189,6 @@ void status()
     printf("Key(s): %d\n", PLAYER_KEY);
     printf("\n");
 
-    if (PLAYER_COIN >= 10)
-    {
-        printf("You've win! Game Over!\n");
-        PLAYING = 0;
-    }
-
-    if (PLAYER_HEALTH <= 0)
-    {
-        printf("You've died! Game Over!\n");
-        PLAYING = 0;
-    }
 }
 
 void player_movement()
@@ -244,7 +249,28 @@ void player_movement()
     printf("\n");
 }
 
+void win_condition()
+{
+    if (PLAYER_COIN >= 10)
+    {
+        printf("You've win! Game Over!\n");
+        PLAYING = 0;
+    }
 
+    if (PLAYER_HEALTH <= 0)
+    {
+        printf("You've died! Game Over!\n");
+        PLAYING = 0;
+    }
+}
+
+
+
+/* ------------------------------ */
+
+/* ----- Others Functions ----- */
+
+/* ------------------------------ */
 int player_collide()
 {
     /* Out of Bounds */
@@ -252,7 +278,6 @@ int player_collide()
     {
         return 0;
     }
-
 
     /* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
     int p_p = main_map[player_position[0]][player_position[1]];
@@ -328,6 +353,4 @@ int player_collide()
         PLAYER_HEALTH--;
         return 1;
     }
-
-
 }
