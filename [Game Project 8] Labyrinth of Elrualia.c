@@ -6,10 +6,11 @@
 int PLAYING = 1;
 void init();
 void events();
-void player_movement();
-void init_map();
 void draw();
+void load_map(int map[20][20]);
+void select_map();
 void draw_map();
+void player_movement();
 void status();
 int player_collide();
 
@@ -75,7 +76,7 @@ int main()
 
 void init()
 {
-    load_map();
+    select_map();
     draw_map();
 }
 
@@ -97,35 +98,45 @@ void draw()
 /* ----- Secondary Functions ----- */
 
 /* ------------------------------ */
-void load_map()
+void select_map()
 {
     int l; int c;
     int map_selection;
+
     printf("Select a Map (1/2/3): ");
     scanf("%d", &map_selection);
 
+    switch(map_selection)
+    {
+    case 1:
+        load_map(map_001);
+        break;
+
+    case 2:
+        load_map(map_002);
+        break;
+
+    case 3:
+        load_map(map_003);
+        break;
+
+    default:
+        printf("Please select a correct map\n");
+        select_map();
+    }
+    printf("\n");
+}
+
+
+
+void load_map(int map[20][20])
+{
+    int l; int c;
     for (l=0; l<20; l++)
     {
         for (c=0; c<20; c++)
         {
-            switch(map_selection)
-            {
-            case 1:
-                main_map[l][c] = map_001[l][c];
-                break;
-
-            case 2:
-                main_map[l][c] = map_002[l][c];
-                break;
-
-            case 3:
-                main_map[l][c] = map_003[l][c];
-                break;
-
-            default:
-                printf("Please select a correct map\n");
-                load_map();
-            }
+            main_map[l][c] = map[l][c];
         }
     }
 }
