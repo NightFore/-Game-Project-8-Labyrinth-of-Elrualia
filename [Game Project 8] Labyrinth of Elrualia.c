@@ -28,6 +28,8 @@ int player_position[] = {0, 0};
 
 
     /* Temporary */
+int main_map[20][20];
+
 int map_001[20][20] =
     {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
@@ -52,6 +54,8 @@ int map_001[20][20] =
     {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
     };
 
+int map_002[20][20];
+int map_003[20][20];
 
 
 /* ------------------------------ */
@@ -71,6 +75,7 @@ int main()
 
 void init()
 {
+    load_map();
     draw_map();
 }
 
@@ -92,6 +97,40 @@ void draw()
 /* ----- Secondary Functions ----- */
 
 /* ------------------------------ */
+void load_map()
+{
+    int l; int c;
+    int map_selection;
+    printf("Select a Map (1/2/3): ");
+    scanf("%d", &map_selection);
+
+    for (l=0; l<20; l++)
+    {
+        for (c=0; c<20; c++)
+        {
+            switch(map_selection)
+            {
+            case 1:
+                main_map[l][c] = map_001[l][c];
+                break;
+
+            case 2:
+                main_map[l][c] = map_002[l][c];
+                break;
+
+            case 3:
+                main_map[l][c] = map_003[l][c];
+                break;
+
+            default:
+                printf("Please select a correct map\n");
+                load_map();
+            }
+        }
+    }
+}
+
+
 
 void draw_map()
 {
@@ -102,7 +141,7 @@ void draw_map()
         {
             if (index_l != player_position[0] || index_c != player_position[1])
             {
-                printf("%d ", map_001[index_l][index_c]);
+                printf("%d ", main_map[index_l][index_c]);
             }
             else
             {
@@ -205,7 +244,7 @@ int player_collide()
 
 
     /* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
-    int p_p = map_001[player_position[0]][player_position[1]];
+    int p_p = main_map[player_position[0]][player_position[1]];
     if (p_p == 0)
     {
         printf("You walked on Grass.\n");
@@ -232,7 +271,7 @@ int player_collide()
 
     if (p_p == 4)
     {
-        map_001[player_position[0]][player_position[1]]= 0;
+        main_map[player_position[0]][player_position[1]]= 0;
         printf("You found a Key on the ground!\n");
         PLAYER_KEY++;
         return 1;
@@ -240,7 +279,7 @@ int player_collide()
 
     if (p_p == 5)
     {
-        map_001[player_position[0]][player_position[1]]= 0;
+        main_map[player_position[0]][player_position[1]]= 0;
         printf("You found a Coin on the ground!\n");
         PLAYER_COIN++;
         return 1;
@@ -251,7 +290,7 @@ int player_collide()
         printf("You found a Lock on your way!\n");
         if (PLAYER_KEY > 0)
         {
-            map_001[player_position[0]][player_position[1]]= 0;
+            main_map[player_position[0]][player_position[1]]= 0;
             printf("You've used a Key to open the Lock!");
             PLAYER_KEY--;
             return 1;
@@ -265,7 +304,7 @@ int player_collide()
 
     if (p_p == 7)
     {
-        map_001[player_position[0]][player_position[1]]= 0;
+        main_map[player_position[0]][player_position[1]]= 0;
         printf("You stepped on a trap!\nYou lost 1 HP!\n");
         PLAYER_HEALTH--;
         return 1;
@@ -273,7 +312,7 @@ int player_collide()
 
     if (p_p == 8)
     {
-        map_001[player_position[0]][player_position[1]]= 0;
+        main_map[player_position[0]][player_position[1]]= 0;
         printf("You met a monster on your way!\nYou lost 1 HP by fighting him!\n");
         PLAYER_HEALTH--;
         return 1;
