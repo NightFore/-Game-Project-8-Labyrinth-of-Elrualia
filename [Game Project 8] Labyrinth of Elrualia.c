@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 /* Settings */
     /* Prototyping */
@@ -19,8 +20,9 @@ void win_condition();
 
 int player_collide();
 void border_map(int width, int height, int map[width][height]);
+int generate_map(int width, int height, int map[width][height]);
 
-
+/* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 int MAP_WIDTH = 20;
@@ -83,6 +85,7 @@ int main()
 
 void init()
 {
+    srand(time(NULL));
     select_map();
     draw_map();
 }
@@ -110,7 +113,7 @@ void select_map()
     int l; int c;
     int map_selection;
 
-    printf("Select a Map (1/2/3): ");
+    printf("Select a Map (1/2/3 or 4: Random): ");
     scanf("%d", &map_selection);
 
     switch(map_selection)
@@ -127,6 +130,11 @@ void select_map()
     case 3:
         load_map(map_003);
         break;
+
+	case 4:
+		generate_map(20, 20, main_map);
+		load_map(main_map);
+		break;
 
     default:
         printf("Please select a correct map\n");
@@ -371,6 +379,38 @@ void border_map(int width, int height, int map[width][height])
 			{
 				map[l][c] = 2;
 			}
+		}
+	}
+}
+
+
+
+int generate_map(int width, int height, int map[width][height])
+{
+	int l; int c;
+	int g_number;
+	int g_key; int g_coin; int g_lock;
+
+	for (l=0; l<height; l++)
+	{
+		for (c=0; c<width; c++)
+		{
+			g_number = rand()%9;
+			switch(g_number)
+			{
+				case 4:
+					g_key++;
+					break;
+
+				case 5:
+					g_coin++;
+					break;
+
+				case 6:
+					g_lock++;
+					break;
+			}
+			map[l][c] = g_number;
 		}
 	}
 }
