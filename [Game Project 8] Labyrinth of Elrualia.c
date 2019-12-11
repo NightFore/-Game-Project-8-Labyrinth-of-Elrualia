@@ -387,30 +387,64 @@ void border_map(int width, int height, int map[width][height])
 int generate_map(int width, int height, int map[width][height])
 {
     int g_key; int g_coin; int g_lock;
-    int *position;
+    int *g_position;
+    int position[2];
 
 	g_key = 0;
 	while (g_key < 1)
 	{
-        position = generate_position(0, 0, width, height);
-        map[*position][*(position+1)] = 4;
+        g_position = generate_position(0, 0, width, height);
+        map[*g_position][*(g_position+1)] = 4;
         g_key++;
 	}
 
 	g_coin = 0;
 	while (g_coin < 10)
 	{
-        position = generate_position(0, 0, width, height);
-        map[*position][*(position+1)] = 5;
+        g_position = generate_position(0, 0, width, height);
+        map[*g_position][*(g_position+1)] = 5;
         g_coin++;
 	}
 
 	g_lock = 0;
 	while (g_lock < 1)
 	{
-        position = generate_position(1, 1, width-1, height-1);
-        map[*position][*(position+1)] = 6;
+        g_position = generate_position(1, 1, width-1, height-1);
+        map[*g_position][*(g_position+1)] = 6;
         g_lock++;
+
+
+        if (*g_position > *(g_position+1))
+        {
+            if (*g_position > (width-2)/2)
+            {
+                position[0] = *g_position+1;
+                position[1] = *(g_position+1);
+            }
+            else
+            {
+                position[0] = *g_position-1;
+                position[1] = *(g_position+1);
+            }
+        }
+
+        else
+        {
+            if (*(g_position+1) > (height-2)/2)
+            {
+                position[0] = *g_position;
+                position[1] = *(g_position+1)+1;
+            }
+            else
+            {
+                position[0] = *g_position;
+                position[1] = *(g_position+1)-1;
+            }
+        }
+
+        main_map[position[0]][position[1]] = 5;
+        generate_treasure(6, 2, position[0], position[1]);
+
 	}
 }
 
@@ -441,4 +475,24 @@ int *generate_position(int min_width, int min_height, int max_width, int max_hei
     */
 
     return position;
+}
+
+int generate_treasure(int object_1, int object_2, int x, int y)
+{
+    int i; int j; int increment = 0;
+    int pos;
+
+    for (i = -1; i <= 1; i++)
+    {
+        for (j = -1; j <= 1; j++)
+        {
+            if (abs(i) != abs(j))
+            {
+                if (main_map[x+i][y+j] != object_1)
+                {
+                    main_map[x+i][y+j] = object_2;
+                }
+            }
+        }
+    }
 }
