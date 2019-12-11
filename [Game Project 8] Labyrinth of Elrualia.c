@@ -16,25 +16,24 @@ void status();
 
 void player_movement();
 void win_condition();
-int player_collide();
 
+int player_collide();
+void border_map(int width, int height, int map[width][height]);
 
 
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
-
-
-
-    /* Player Settings*/
-int PLAYER_HEALTH       = 10;
-int PLAYER_COIN         = 0;
-int PLAYER_KEY          = 0;
-
-
+int MAP_WIDTH = 20;
+int MAP_HEIGHT = 20;
 
     /* Global Variables */
 int player_position[] = {0, 0};
-
+int player_health       = 10;
+int count_grass = 0;
+int count_flower = 0;
+int count_coin = 0;
+int count_key = 0;
+int count_kill = 0;
 
     /* Temporary */
 int main_map[20][20];
@@ -122,6 +121,7 @@ void select_map()
 
     case 2:
         load_map(map_002);
+        border_map(MAP_WIDTH, MAP_HEIGHT, main_map);
         break;
 
     case 3:
@@ -184,9 +184,9 @@ void draw_map()
 /* ------------------------------ */
 void status()
 {
-    printf("Health: %d\n", PLAYER_HEALTH);
-    printf("Coin(s): %d / 10\n", PLAYER_COIN);
-    printf("Key(s): %d\n", PLAYER_KEY);
+    printf("Health: %d\n", player_health);
+    printf("Coin(s): %d / 10\n", count_coin);
+    printf("Key(s): %d\n", count_key);
     printf("\n");
 
 }
@@ -251,13 +251,13 @@ void player_movement()
 
 void win_condition()
 {
-    if (PLAYER_COIN >= 10)
+    if (count_coin >= 10)
     {
         printf("You've win! Game Over!\n");
         PLAYING = 0;
     }
 
-    if (PLAYER_HEALTH <= 0)
+    if (player_health <= 0)
     {
         printf("You've died! Game Over!\n");
         PLAYING = 0;
@@ -284,12 +284,14 @@ int player_collide()
     if (p_p == 0)
     {
         printf("You walked on Grass.\n");
+	count_grass++;
         return 1;
     }
 
     if (p_p == 1)
     {
         printf("You walked on a Flower.\n");
+	count_flower++;
         return 1;
     }
 
@@ -309,7 +311,7 @@ int player_collide()
     {
         main_map[player_position[0]][player_position[1]]= 0;
         printf("You found a Key on the ground!\n");
-        PLAYER_KEY++;
+        count_key++;
         return 1;
     }
 
@@ -317,18 +319,18 @@ int player_collide()
     {
         main_map[player_position[0]][player_position[1]]= 0;
         printf("You found a Coin on the ground!\n");
-        PLAYER_COIN++;
+        count_coin++;
         return 1;
     }
 
     if (p_p == 6)
     {
         printf("You found a Lock on your way!\n");
-        if (PLAYER_KEY > 0)
+        if (count_key > 0)
         {
             main_map[player_position[0]][player_position[1]]= 0;
             printf("You've used a Key to open the Lock!");
-            PLAYER_KEY--;
+            count_key--;
             return 1;
         }
         else
@@ -342,7 +344,7 @@ int player_collide()
     {
         main_map[player_position[0]][player_position[1]]= 0;
         printf("You stepped on a trap!\nYou lost 1 HP!\n");
-        PLAYER_HEALTH--;
+        player_health--;
         return 1;
     }
 
@@ -350,7 +352,25 @@ int player_collide()
     {
         main_map[player_position[0]][player_position[1]]= 0;
         printf("You met a monster on your way!\nYou lost 1 HP by fighting him!\n");
-        PLAYER_HEALTH--;
+        player_health--;
         return 1;
     }
+}
+
+
+
+void border_map(int width, int height, int map[width][height])
+{
+	int l; int c;
+
+	for (l=0; l<height; l++)
+	{
+		for (c=0; c<width; c++)
+		{
+			if ((l%height==0) || (c%width==0) || (l==height-1) || (c==width-1))
+			{
+				map[l][c] = 2;
+			}
+		}
+	}
 }
