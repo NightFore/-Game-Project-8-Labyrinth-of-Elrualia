@@ -21,6 +21,7 @@ void win_condition();
 int player_collide();
 void border_map(int width, int height, int map[width][height]);
 int generate_map(int width, int height, int map[width][height]);
+int *generate_position(int min_width, int min_height, int max_width, int max_height);
 
 /* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
     /* Game Settings */
@@ -383,34 +384,61 @@ void border_map(int width, int height, int map[width][height])
 	}
 }
 
-
-
 int generate_map(int width, int height, int map[width][height])
 {
-	int l; int c;
-	int g_number;
-	int g_key; int g_coin; int g_lock;
+    int g_key; int g_coin; int g_lock;
+    int *position;
 
-	for (l=0; l<height; l++)
+	g_key = 0;
+	while (g_key < 1)
 	{
-		for (c=0; c<width; c++)
-		{
-			g_number = rand()%9;
-			switch(g_number)
-			{
-				case 4:
-					g_key++;
-					break;
-
-				case 5:
-					g_coin++;
-					break;
-
-				case 6:
-					g_lock++;
-					break;
-			}
-			map[l][c] = g_number;
-		}
+        position = generate_position(0, 0, width, height);
+        map[*position][*(position+1)] = 4;
+        g_key++;
 	}
+
+	g_coin = 0;
+	while (g_coin < 10)
+	{
+        position = generate_position(0, 0, width, height);
+        map[*position][*(position+1)] = 5;
+        g_coin++;
+	}
+
+	g_lock = 0;
+	while (g_lock < 1)
+	{
+        position = generate_position(1, 1, width-1, height-1);
+        map[*position][*(position+1)] = 6;
+        g_lock++;
+	}
+}
+
+int *generate_position(int min_width, int min_height, int max_width, int max_height)
+{
+    static int position[2];
+    int x; int y;
+
+    do
+    {
+        do
+        {
+            x = rand() % max_width;
+            position[0] = x;
+        } while (x < min_width);
+
+        do
+        {
+            y = rand() % max_height;
+            position[1] = y;
+        } while (y < min_height);
+
+    } while (main_map[x][y] != 0);
+
+    /*
+    printf("%d\n", x);
+    printf("%d\n", y);
+    */
+
+    return position;
 }
