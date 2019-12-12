@@ -395,9 +395,37 @@ void border_map(int width, int height, int map[width][height])
 /* ------------------------------ */
 void generate_map(int width, int height, int map[width][height])
 {
+    int g_player[2];
+    int g_flower = 0; int g_tree = 0; int g_rock = 0;
     int g_key = 0; int g_coin = 0; int g_lock = 0;
+    int g_trap = 0; int g_monster = 0;
     int *g_pos;
     int pos[2];
+
+    g_pos = generate_position(0, 0, width, height);
+    player_position[0] = *g_pos;
+    player_position[1] = *(g_pos+1);
+
+	while (g_flower < 2)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 1;
+        g_flower++;
+	}
+
+	while (g_tree < 5)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 2;
+        g_tree++;
+	}
+
+	while (g_rock < 5)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 3;
+        g_rock++;
+	}
 
 	while (g_key < 1)
 	{
@@ -417,6 +445,20 @@ void generate_map(int width, int height, int map[width][height])
         g_pos = generate_position(0, 0, width, height);
         map[*g_pos][*(g_pos+1)] = 5;
         g_coin++;
+	}
+
+	while (g_trap < 10)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 7;
+        g_trap++;
+	}
+
+	while (g_monster < 5)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 8;
+        g_monster++;
 	}
 }
 
