@@ -20,9 +20,10 @@ void win_condition();
 
 int player_collide();
 void border_map(int width, int height, int map[width][height]);
+
 void generate_map(int width, int height, int map[width][height]);
 int *generate_position(int min_width, int min_height, int max_width, int max_height);
-void generate_treasure(int object_1, int object_2, int object_3, int x, int y, int width, int height, int map[width][height]);
+void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height]);
 
 /* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
     /* Game Settings */
@@ -278,7 +279,7 @@ void win_condition()
 
 /* ------------------------------ */
 
-/* ----- Others Functions ----- */
+/* ----- Gameplay Functions ----- */
 
 /* ------------------------------ */
 int player_collide()
@@ -385,6 +386,13 @@ void border_map(int width, int height, int map[width][height])
 	}
 }
 
+
+
+/* ------------------------------ */
+
+/* ----- Map Functions ----- */
+
+/* ------------------------------ */
 void generate_map(int width, int height, int map[width][height])
 {
     int g_key = 0; int g_coin = 0; int g_lock = 0;
@@ -400,8 +408,7 @@ void generate_map(int width, int height, int map[width][height])
 
 	while (g_lock < 1)
 	{
-        g_pos = generate_position(1, 1, width-1, height-1);
-        generate_treasure(5, 6, 2, *g_pos, *(g_pos+1), width, height, main_map);
+        generate_treasure(5, 6, 2, width, height, map);
         g_lock++; g_coin++;
 	}
 
@@ -415,42 +422,27 @@ void generate_map(int width, int height, int map[width][height])
 
 int *generate_position(int min_width, int min_height, int max_width, int max_height)
 {
-    static int position[2];
-    int x; int y;
+    static int pos[2];
 
-    do
-    {
-        do
-        {
-            x = rand() % max_width;
-            position[0] = x;
-        } while (x < min_width);
+    do{
+        do{ pos[0] = rand() % max_width;;
+        } while (pos[0] < min_width);
 
-        do
-        {
-            y = rand() % max_height;
-            position[1] = y;
-        } while (y < min_height);
+        do{ pos[1] = rand() % max_height;
+        } while (pos[1] < min_height);
 
-    } while (main_map[x][y] != 0);
+    } while (main_map[pos[0]][pos[1]] != 0);
 
-    /*
-    printf("%d\n", x);
-    printf("%d\n", y);
-    */
-
-    return position;
+    return pos;
 }
 
-void generate_treasure(int object_1, int object_2, int object_3, int x, int y, int width, int height, int map[width][height])
+void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height])
 {
-    /*
-    1: Treasure
-    2: Lock
-    3: Obstacle
-    */
+    /** 1: Treasure / 2: Lock / 3: Obstacle **/
 
     int i; int j;
+    int *g_pos = generate_position(1, 1, width-1, height-1);
+    int x = *g_pos; int y = *(g_pos+1);
     int pos[2];
 
     /* Direction */
