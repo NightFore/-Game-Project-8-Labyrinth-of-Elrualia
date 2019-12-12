@@ -25,20 +25,21 @@ void generate_map(int width, int height, int map[width][height]);
 int *generate_position(int min_width, int min_height, int max_width, int max_height);
 void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height]);
 
-/* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
+
+/** 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster **/
     /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 int MAP_WIDTH = 20;
 int MAP_HEIGHT = 20;
 
     /* Global Variables */
-int player_position[] = {0, 0};
-int player_health       = 10;
-int count_grass = 0;
-int count_flower = 0;
-int count_coin = 0;
-int count_key = 0;
-int count_kill = 0;
+int player_position[2];
+int player_health;
+int count_grass;
+int count_flower;
+int count_coin;
+int count_key;
+int count_kill;
 
     /* Temporary */
 int main_map[20][20];
@@ -78,17 +79,28 @@ int map_003[20][20];
 /* ------------------------------ */
 int main()
 {
+    /** Start Game **/
     init();
     while (PLAYING==1)
     {
         events();
         draw();
     }
+
+    /** New Game+ **/
+    int new_game;
+    printf("Do you want to play again? Type 5 to continue or another number to stop.\n");
+    scanf("%d", &new_game);
+    if (new_game == 5)
+    {
+        main();
+    }
 }
 
 void init()
 {
     srand(time(NULL));
+    init_player();
     select_map();
     draw_map();
 }
@@ -111,6 +123,19 @@ void draw()
 /* ----- Initialization Functions ----- */
 
 /* ------------------------------ */
+void init_player()
+{
+    PLAYING = 1;
+    player_position[0] = 0;
+    player_position[1] = 0;
+    player_health = 10;
+    count_grass = 0;
+    count_flower = 0;
+    count_coin = 0;
+    count_key = 0;
+    count_kill = 0;
+}
+
 void select_map()
 {
     int l; int c;
