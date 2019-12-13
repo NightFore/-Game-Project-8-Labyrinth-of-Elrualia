@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1576271700 source:d:\nightfore\# [project]\[game project 8] labyrinth of elrualia\[game project 8] labyrinth of elrualia.c
+1576275370 source:d:\nightfore\# [project]\[game project 8] labyrinth of elrualia\[game project 8] labyrinth of elrualia.c
 	<stdio.h>
 	<SDL2/SDL.h>
 	<SDL2/SDL_timer.h>

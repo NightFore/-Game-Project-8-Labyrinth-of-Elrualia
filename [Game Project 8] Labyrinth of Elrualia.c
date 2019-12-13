@@ -3,6 +3,10 @@
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
 
+#define WINDOW_WIDTH (640)
+#define WINDOW_HEIGHT (480)
+#define SCROLL_SPEED (300)
+
 int main(int argc, char *argv[])
 {
     /** Initialization Error **/
@@ -55,6 +59,37 @@ int main(int argc, char *argv[])
         SDL_DestroyWindow(win);
         SDL_Quit();
         return 1;
+    }
+
+    /** Animation **/
+    /* Struct to hold the position and size of the sprite */
+    SDL_Rect dest;
+
+    /* Get the dimensions of the texture */
+    SDL_QueryTexture(tex, NULL, NULL, &dest.w, &dest.h);
+
+    /* X & Y position */
+    dest.x = (WINDOW_WIDTH - dest.w) / 2;
+    float y_pos = WINDOW_HEIGHT;
+
+    /** Animation Loop **/
+    while (dest.y >= -dest.h)
+    {
+        /* Clear the window */
+        SDL_RenderClear(rend);
+
+        /* Y position */
+        dest.y = (int) y_pos;
+
+        /* Draw image to the window */
+        SDL_RenderCopy(rend, tex, NULL, &dest);
+        SDL_RenderPresent(rend);
+
+        /* Update sprite position */
+        y_pos -= (float) SCROLL_SPEED / 60;
+
+        /* 60 FPS */
+        SDL_Delay(1000/60);
     }
 
     /** Clear the window **/
