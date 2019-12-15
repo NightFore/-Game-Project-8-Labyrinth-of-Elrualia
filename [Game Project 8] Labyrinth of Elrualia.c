@@ -4,11 +4,13 @@
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
 
-#define WINDOW_WIDTH (640)
-#define WINDOW_HEIGHT (480)
+#define WINDOW_WIDTH (800)
+#define WINDOW_HEIGHT (600)
 #define SPEED (300)
+#define FPS (60)
 
 int playing = 0;
+char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 
 SDL_Window* win;
 SDL_Renderer* rend;
@@ -33,7 +35,6 @@ struct
     float y_vel;
 } player;
 
-/* Struct to hold the position and size of the sprite */
 SDL_Rect dest;
 
 
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
     while (!game.playing)
     {
         events();
+        update();
         draw();
     }
 
@@ -139,7 +141,10 @@ void events()
             break;
         }
     }
+}
 
+void update()
+{
     /* Determine velocity */
     player.x_vel = player.y_vel = 0;
     if (game.up && !game.down) player.y_vel = -SPEED;
@@ -148,8 +153,8 @@ void events()
     if (game.right && !game.left) player.x_vel = SPEED;
 
     /* Update position */
-    player.x_pos += player.x_vel / 60;
-    player.y_pos += player.y_vel / 60;
+    player.x_pos += player.x_vel / FPS;
+    player.y_pos += player.y_vel / FPS;
 
     /* Collision with bounds */
     if (player.x_pos <= 0) player.x_pos = 0;
@@ -167,12 +172,28 @@ void draw()
     /* Clear the window */
     SDL_RenderClear(rend);
 
+    SDL_Surface* dirt_surf = IMG_Load("data/tilesheet/dirt.png");
+    SDL_Texture* dirt_tex = SDL_CreateTextureFromSurface(rend, dirt_surf);
+
+    SDL_Rect dirt = {0, 0, 32, 32};
+
+    int i; int j;
+    for (i=0; i<25; i++)
+    {
+        for (j=0; j<25; j++)
+        {
+            dirt.x = 32*i;
+            dirt.y = 32*j;
+            SDL_RenderCopy(rend, dirt_tex, NULL, &dirt);
+        }
+    }
+
     /* Draw image to the window */
     SDL_RenderCopy(rend, tex, NULL, &dest);
     SDL_RenderPresent(rend);
 
     /* 60 FPS */
-    SDL_Delay(1000/60);
+    SDL_Delay(1000/FPS);
 }
 
 void quit_game()
@@ -196,7 +217,7 @@ int init_SDL()
         return 1;
     }
 
-    win = SDL_CreateWindow("Hello, CS50!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, 0);
+    win = SDL_CreateWindow(PROJECT_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
     /** Window **/
     if (!win)
