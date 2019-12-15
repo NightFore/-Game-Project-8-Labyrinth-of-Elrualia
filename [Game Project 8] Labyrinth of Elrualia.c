@@ -51,6 +51,17 @@ struct
 
 struct
 {
+    SDL_Surface* surf;
+    SDL_Texture* text;
+    SDL_Rect rect;
+
+    int pos[2];
+    int health;
+    int flower;
+    int coin;
+    int key;
+    int kill;
+
     float x_pos;
     float y_pos;
 
@@ -214,6 +225,18 @@ void load()
     load_tile(&tile[7], "data/graphics/tile_lpc_trap.png");
     load_tile(&tile[8], "data/graphics/character_pipoya_enemy_04_1.png");
 
+    player.surf = IMG_Load("data/graphics/character_pipoya_male_01_2.png");
+    player.text = SDL_CreateTextureFromSurface(rend, player.surf);
+    player.rect.w = TILESIZE; player.rect.h = TILESIZE;
+    player.pos[0] = 0;
+    player.pos[1] = 0;
+    player.health = 10;
+    player.flower = 0;
+    player.coin = 0;
+    player.key = 0;
+    player.kill = 0;
+
+
     int map_001[20][20] =
         {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
@@ -369,5 +392,8 @@ void draw_map()
             SDL_RenderCopy(rend, tile[t].text, NULL, &tile[t].rect);
         }
     }
+    player.rect.x = 32 * player.pos[0];
+    player.rect.y = 32 * player.pos[1];
+    SDL_RenderCopy(rend, player.text, NULL, &player.rect);
 }
 
