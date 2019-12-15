@@ -75,8 +75,14 @@ int main(int argc, char *argv[])
     float y_pos = (WINDOW_HEIGHT - dest.h) / 2;
 
     /* X & Y Velocity */
-    float x_vel = SPEED;
-    float y_vel = SPEED;
+    float x_vel = 0;
+    float y_vel = 0;
+
+    /* Input */
+    int up = 0;
+    int down = 0;
+    int left = 0;
+    int right = 0;
 
     /* Close window when set to 1*/
     int close_requested = 0;
@@ -88,37 +94,80 @@ int main(int argc, char *argv[])
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            if (event.type == SDL_QUIT)
+            switch(event.type)
             {
+            case SDL_QUIT:
                 close_requested = 1;
+                break;
+
+            case SDL_KEYDOWN:
+                switch(event.key.keysym.scancode)
+                {
+                case SDL_SCANCODE_W:
+                case SDL_SCANCODE_UP:
+                    up = 1;
+                    break;
+
+                case SDL_SCANCODE_S:
+                case SDL_SCANCODE_DOWN:
+                    down = 1;
+                    break;
+
+                case SDL_SCANCODE_A:
+                case SDL_SCANCODE_LEFT:
+                    left = 1;
+                    break;
+
+                case SDL_SCANCODE_D:
+                case SDL_SCANCODE_RIGHT:
+                    right = 1;
+                    break;
+                }
+                break;
+
+            case SDL_KEYUP:
+                switch(event.key.keysym.scancode)
+                {
+                case SDL_SCANCODE_W:
+                case SDL_SCANCODE_UP:
+                    up = 0;
+                    break;
+
+                case SDL_SCANCODE_S:
+                case SDL_SCANCODE_DOWN:
+                    down = 0;
+                    break;
+
+                case SDL_SCANCODE_A:
+                case SDL_SCANCODE_LEFT:
+                    left = 0;
+                    break;
+
+                case SDL_SCANCODE_D:
+                case SDL_SCANCODE_RIGHT:
+                    right = 0;
+                    break;
+                }
+                break;
             }
         }
 
-        /* Collision with bounds */
-        if (x_pos <= 0)
-        {
-            x_pos = 0;
-            x_vel = -x_vel;
-        }
-        if (y_pos <= 0)
-        {
-            y_pos = 0;
-            y_vel = -y_vel;
-        }
-        if (x_pos >= WINDOW_WIDTH - dest.w)
-        {
-            x_pos = WINDOW_WIDTH - dest.w;
-            x_vel = -x_vel;
-        }
-        if (y_pos >= WINDOW_HEIGHT - dest.h)
-        {
-            y_pos = WINDOW_HEIGHT - dest.h;
-            y_vel = -y_vel;
-        }
+        /* Determine velocity */
+        x_vel = y_vel = 0;
+        if (up && !down) y_vel = -SPEED;
+        if (down && !up) y_vel = SPEED;
+        if (left && !right) x_vel = -SPEED;
+        if (right && !left) x_vel = SPEED;
 
         /* Update position */
         x_pos += x_vel / 60;
         y_pos += y_vel / 60;
+
+        /* Collision with bounds */
+        if (x_pos <= 0) x_pos = 0;
+        if (y_pos <= 0) y_pos = 0;
+        if (x_pos >= WINDOW_WIDTH - dest.w) x_pos = WINDOW_WIDTH - dest.w;
+        if (y_pos >= WINDOW_HEIGHT - dest.h) y_pos = WINDOW_HEIGHT - dest.h;
 
         /* Set position in the struct */
         dest.x = (int) x_pos;
