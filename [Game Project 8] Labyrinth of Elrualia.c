@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
@@ -7,9 +8,44 @@
 #define WINDOW_HEIGHT (480)
 #define SPEED (300)
 
+int playing = 0;
+
+
+/* ------------------------------ */
+
+/* ----- Main Functions ----- */
+
+/* ------------------------------ */
 int main(int argc, char *argv[])
 {
-    /** Initialization Error **/
+    /** Start Game **/
+    init();
+    while (!playing)
+    {
+        events();
+        draw();
+    }
+
+    return 0;
+}
+
+void init()
+{
+    srand(time(NULL));
+    init_SDL();
+}
+
+void events()
+{
+}
+
+void draw()
+{
+}
+
+int init_SDL()
+{
+    /** Initialization **/
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
     {
         printf("Error initializing SDL: %s\n", SDL_GetError());
@@ -18,7 +54,7 @@ int main(int argc, char *argv[])
 
     SDL_Window* win = SDL_CreateWindow("Hello, CS50!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, 0);
 
-    /** Winwdow Error **/
+    /** Winwdow **/
     if (!win)
     {
         printf("Error creating window: %s\n", SDL_GetError());
@@ -37,7 +73,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /** Load the image into memory using SDL_image library function **/
+    /** Surface **/
     SDL_Surface* surface = IMG_Load("data/hello.jpg");
     if (!surface)
     {
@@ -48,12 +84,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /** Load the image data into the graphics hardware's memory **/
+    /** Texture **/
     SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surface);
     SDL_FreeSurface(surface);
     if (!tex)
     {
-        printf("Error creating surface: %s\n", SDL_GetError());
+        printf("Error creating texture: %s\n", SDL_GetError());
         SDL_DestroyTexture(tex);
         SDL_DestroyRenderer(rend);
         SDL_DestroyWindow(win);
@@ -84,11 +120,8 @@ int main(int argc, char *argv[])
     int left = 0;
     int right = 0;
 
-    /* Close window when set to 1*/
-    int close_requested = 0;
-
     /** Animation Loop **/
-    while (!close_requested)
+    while (!playing)
     {
         /* Events */
         SDL_Event event;
@@ -97,7 +130,7 @@ int main(int argc, char *argv[])
             switch(event.type)
             {
             case SDL_QUIT:
-                close_requested = 1;
+                playing = 1;
                 break;
 
             case SDL_KEYDOWN:
