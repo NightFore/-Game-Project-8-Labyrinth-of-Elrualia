@@ -22,7 +22,7 @@ struct image
     SDL_Surface* surf;
     SDL_Texture* text;
     SDL_Rect rect;
-} dirt;
+} dirt= {IMG_Load("data/tilesheet/dirt.png"), SDL_CreateTextureFromSurface(rend, dirt.surf), {0, 0, 32, 32}};
 
 struct
 {
@@ -88,9 +88,7 @@ void init()
 
 void load()
 {
-    dirt.surf = IMG_Load("data/tilesheet/dirt.png");
-    dirt.text = SDL_CreateTextureFromSurface(rend, dirt.surf);
-    dirt.rect.w = 32; dirt.rect.h = 32;
+
 }
 
 void events()
