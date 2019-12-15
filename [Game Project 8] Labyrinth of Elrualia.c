@@ -4,11 +4,13 @@
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
 
-#define WINDOW_WIDTH (800)
+#define WINDOW_WIDTH (640)
 #define WINDOW_HEIGHT (640)
 #define SPEED (300)
 #define FPS (60)
 #define TILESIZE (32)
+
+/** 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster **/
 
 int playing = 0;
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
@@ -18,6 +20,13 @@ SDL_Renderer* rend;
 SDL_Surface* surface;
 SDL_Texture* tex;
 
+
+
+/* ------------------------------ */
+
+/* ----- Struct ----- */
+
+/* ------------------------------ */
 struct image
 {
     SDL_Surface* surf;
@@ -195,7 +204,15 @@ int init_SDL()
 
 void load()
 {
-    load_tile(&tile[0], "data/tilesheet/dirt.png");
+    load_tile(&tile[0], "data/graphics/tile_lpc_grass.png");
+    load_tile(&tile[1], "data/graphics/tile_lpc_flower.png");
+    load_tile(&tile[2], "data/graphics/tile_lpc_tree.png");
+    load_tile(&tile[3], "data/graphics/tile_lpc_rock.png");
+    load_tile(&tile[4], "data/graphics/item_raventale_loot_05_key.png");
+    load_tile(&tile[5], "data/graphics/item_raventale_loot_04_coins.png");
+    load_tile(&tile[6], "data/graphics/item_raventale_loot_06_chest.png");
+    load_tile(&tile[7], "data/graphics/tile_lpc_trap.png");
+    load_tile(&tile[8], "data/graphics/character_pipoya_enemy_04_1.png");
 
     int map_001[20][20] =
         {
@@ -242,7 +259,6 @@ void load_map(int map[20][20])
         for (c=0; c<game.tile_width; c++)
         {
             game.map[l][c] = map[l][c];
-            printf("%d", game.map[l][c]);
         }
     }
 }
@@ -342,14 +358,15 @@ void draw()
 
 void draw_map()
 {
-    int i; int j;
-    for (i = 0; i < game.tile_width; i++)
+    int l; int c; int t;
+    for (l = 0; l < game.tile_height; l++)
     {
-        for (j = 0; j < game.tile_height; j++)
+        for (c = 0; c < game.tile_width; c++)
         {
-            tile[0].rect.x = 32*i;
-            tile[0].rect.y = 32*j;
-            SDL_RenderCopy(rend, tile[0].text, NULL, &tile[0].rect);
+            t = game.map[l][c];
+            tile[t].rect.y = 32*l;
+            tile[t].rect.x = 32*c;
+            SDL_RenderCopy(rend, tile[t].text, NULL, &tile[t].rect);
         }
     }
 }
