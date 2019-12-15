@@ -17,8 +17,6 @@ char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 
 SDL_Window* win;
 SDL_Renderer* rend;
-SDL_Surface* surface;
-SDL_Texture* tex;
 
 
 
@@ -61,12 +59,6 @@ struct
     int coin;
     int key;
     int kill;
-
-    float x_pos;
-    float y_pos;
-
-    float x_vel;
-    float y_vel;
 } player;
 
 SDL_Rect dest;
@@ -99,7 +91,12 @@ void quit_game()
     SDL_Delay(1000);
 
     /** Clean up **/
-    SDL_DestroyTexture(tex);
+    int i;
+    for (i=0; i<9; i++)
+    {
+        SDL_DestroyTexture(tile[i].text);
+    }
+    SDL_DestroyTexture(player.text);
     SDL_DestroyRenderer(rend);
     SDL_DestroyWindow(win);
     SDL_Quit();
@@ -107,26 +104,6 @@ void quit_game()
 
 void update()
 {
-    /* Determine velocity */
-    player.x_vel = player.y_vel = 0;
-    if (game.up && !game.down) player.y_vel = -SPEED;
-    if (game.down && !game.up) player.y_vel = SPEED;
-    if (game.left && !game.right) player.x_vel = -SPEED;
-    if (game.right && !game.left) player.x_vel = SPEED;
-
-    /* Update position */
-    player.x_pos += player.x_vel / FPS;
-    player.y_pos += player.y_vel / FPS;
-
-    /* Collision with bounds */
-    if (player.x_pos <= 0) player.x_pos = 0;
-    if (player.y_pos <= 0) player.y_pos = 0;
-    if (player.x_pos >= WINDOW_WIDTH - dest.w) player.x_pos = WINDOW_WIDTH - dest.w;
-    if (player.y_pos >= WINDOW_HEIGHT - dest.h) player.y_pos = WINDOW_HEIGHT - dest.h;
-
-    /* Set position in the struct */
-    dest.x = (int) player.x_pos;
-    dest.y = (int) player.y_pos;
 }
 
 
@@ -144,19 +121,6 @@ void init()
 
     game.tile_height = WINDOW_HEIGHT / TILESIZE;
     game.tile_width = WINDOW_WIDTH / TILESIZE;
-
-    /* Get the dimensions of the texture */
-    SDL_QueryTexture(tex, NULL, NULL, &dest.w, &dest.h);
-    dest.w /= 4;
-    dest.h /= 4;
-
-    /* X & Y position */
-    player.x_pos = (WINDOW_WIDTH - dest.w) / 2;
-    player.y_pos = (WINDOW_HEIGHT - dest.h) / 2;
-
-    /* X & Y Velocity */
-    player.x_vel = 0;
-    player.y_vel = 0;
 }
 
 int init_SDL()
@@ -189,7 +153,7 @@ int init_SDL()
     }
 
     /** Surface **/
-    surface = IMG_Load("surface.png");
+    SDL_Surface* surface = IMG_Load("surface.png");
     if (!surface)
     {
         printf("Error creating surface: %s\n", SDL_GetError());
@@ -200,7 +164,7 @@ int init_SDL()
     }
 
     /** Texture **/
-    tex = SDL_CreateTextureFromSurface(rend, surface);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surface);
     SDL_FreeSurface(surface);
     if (!tex)
     {
@@ -305,52 +269,27 @@ void events()
             game.playing = 1;
             break;
 
-        case SDL_KEYDOWN:
-            switch(event.key.keysym.scancode)
-            {
-            case SDL_SCANCODE_W:
-            case SDL_SCANCODE_UP:
-                game.up = 1;
-                break;
-
-            case SDL_SCANCODE_S:
-            case SDL_SCANCODE_DOWN:
-                game.down = 1;
-                break;
-
-            case SDL_SCANCODE_A:
-            case SDL_SCANCODE_LEFT:
-                game.left = 1;
-                break;
-
-            case SDL_SCANCODE_D:
-            case SDL_SCANCODE_RIGHT:
-                game.right = 1;
-                break;
-            }
-            break;
-
         case SDL_KEYUP:
             switch(event.key.keysym.scancode)
             {
             case SDL_SCANCODE_W:
             case SDL_SCANCODE_UP:
-                game.up = 0;
+                player.pos[1] -= 1;
                 break;
 
             case SDL_SCANCODE_S:
             case SDL_SCANCODE_DOWN:
-                game.down = 0;
+                player.pos[1] += 1;
                 break;
 
             case SDL_SCANCODE_A:
             case SDL_SCANCODE_LEFT:
-                game.left = 0;
+                player.pos[0] -= 1;
                 break;
 
             case SDL_SCANCODE_D:
             case SDL_SCANCODE_RIGHT:
-                game.right = 0;
+                player.pos[0] += 1;
                 break;
             }
             break;
@@ -369,13 +308,14 @@ void draw()
 {
     /* Clear the window */
     SDL_RenderClear(rend);
+
+    /* Draw texture */
     draw_map();
 
-    /* Draw image to the window */
-    SDL_RenderCopy(rend, tex, NULL, &dest);
+    /* Render to the window */
     SDL_RenderPresent(rend);
 
-    /* 60 FPS */
+    /* FPS */
     SDL_Delay(1000/FPS);
 }
 
