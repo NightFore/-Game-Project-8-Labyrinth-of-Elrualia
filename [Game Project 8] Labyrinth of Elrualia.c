@@ -10,6 +10,19 @@
 
 int playing = 0;
 
+SDL_Window* win;
+SDL_Renderer* rend;
+SDL_Surface* surface;
+SDL_Texture* tex;
+
+struct
+{
+    int up;
+    int down;
+    int left;
+    int right;
+} game;
+
 
 /* ------------------------------ */
 
@@ -42,7 +55,6 @@ void events()
 void draw()
 {
 }
-
 int init_SDL()
 {
     /** Initialization **/
@@ -114,12 +126,6 @@ int init_SDL()
     float x_vel = 0;
     float y_vel = 0;
 
-    /* Input */
-    int up = 0;
-    int down = 0;
-    int left = 0;
-    int right = 0;
-
     /** Animation Loop **/
     while (!playing)
     {
@@ -138,22 +144,22 @@ int init_SDL()
                 {
                 case SDL_SCANCODE_W:
                 case SDL_SCANCODE_UP:
-                    up = 1;
+                    game.up = 1;
                     break;
 
                 case SDL_SCANCODE_S:
                 case SDL_SCANCODE_DOWN:
-                    down = 1;
+                    game.down = 1;
                     break;
 
                 case SDL_SCANCODE_A:
                 case SDL_SCANCODE_LEFT:
-                    left = 1;
+                    game.left = 1;
                     break;
 
                 case SDL_SCANCODE_D:
                 case SDL_SCANCODE_RIGHT:
-                    right = 1;
+                    game.right = 1;
                     break;
                 }
                 break;
@@ -163,22 +169,22 @@ int init_SDL()
                 {
                 case SDL_SCANCODE_W:
                 case SDL_SCANCODE_UP:
-                    up = 0;
+                    game.up = 0;
                     break;
 
                 case SDL_SCANCODE_S:
                 case SDL_SCANCODE_DOWN:
-                    down = 0;
+                    game.down = 0;
                     break;
 
                 case SDL_SCANCODE_A:
                 case SDL_SCANCODE_LEFT:
-                    left = 0;
+                    game.left = 0;
                     break;
 
                 case SDL_SCANCODE_D:
                 case SDL_SCANCODE_RIGHT:
-                    right = 0;
+                    game.right = 0;
                     break;
                 }
                 break;
@@ -187,10 +193,10 @@ int init_SDL()
 
         /* Determine velocity */
         x_vel = y_vel = 0;
-        if (up && !down) y_vel = -SPEED;
-        if (down && !up) y_vel = SPEED;
-        if (left && !right) x_vel = -SPEED;
-        if (right && !left) x_vel = SPEED;
+        if (game.up && !game.down) y_vel = -SPEED;
+        if (game.down && !game.up) y_vel = SPEED;
+        if (game.left && !game.right) x_vel = -SPEED;
+        if (game.right && !game.left) x_vel = SPEED;
 
         /* Update position */
         x_pos += x_vel / 60;
@@ -217,15 +223,8 @@ int init_SDL()
         SDL_Delay(1000/60);
     }
 
-    /** Clear the window **/
-    SDL_RenderClear(rend);
-
-    /** Draw the image to the window **/
-    SDL_RenderCopy(rend, tex, NULL, NULL);
-    SDL_RenderPresent(rend);
-
     /** Wait a few seconds **/
-    SDL_Delay(5000);
+    SDL_Delay(1000);
 
     /** Clean up **/
     SDL_DestroyTexture(tex);
