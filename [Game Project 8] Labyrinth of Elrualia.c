@@ -5,9 +5,10 @@
 #include <SDL2/SDL_image.h>
 
 #define WINDOW_WIDTH (800)
-#define WINDOW_HEIGHT (600)
+#define WINDOW_HEIGHT (640)
 #define SPEED (300)
 #define FPS (60)
+#define TILESIZE (32)
 
 int playing = 0;
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
@@ -22,11 +23,15 @@ struct image
     SDL_Surface* surf;
     SDL_Texture* text;
     SDL_Rect rect;
-} dirt;
+} tile[9];
 
 struct
 {
     int playing;
+
+    int tile_width;
+    int tile_height;
+
     int up;
     int down;
     int left;
@@ -72,6 +77,9 @@ void init()
     srand(time(NULL));
     init_SDL();
 
+    game.tile_width = WINDOW_WIDTH / TILESIZE;
+    game.tile_height = WINDOW_HEIGHT / TILESIZE;
+
     /* Get the dimensions of the texture */
     SDL_QueryTexture(tex, NULL, NULL, &dest.w, &dest.h);
     dest.w /= 4;
@@ -86,11 +94,19 @@ void init()
     player.y_vel = 0;
 }
 
+void load_tile(struct image *tile, char directory[])
+{
+    struct image t_tile;
+    t_tile.surf = IMG_Load(directory);
+    t_tile.text = SDL_CreateTextureFromSurface(rend, t_tile.surf);
+    t_tile.rect.w = TILESIZE; t_tile.rect.h = TILESIZE;
+
+    *tile = t_tile;
+}
+
 void load()
 {
-    dirt.surf = IMG_Load("data/tilesheet/dirt.png");
-    dirt.text = SDL_CreateTextureFromSurface(rend, dirt.surf);
-    dirt.rect.w = 32; dirt.rect.h = 32;
+    load_tile(&tile[0], "data/tilesheet/dirt.png");
 }
 
 void events()
@@ -186,17 +202,7 @@ void draw()
 {
     /* Clear the window */
     SDL_RenderClear(rend);
-
-    int i; int j;
-    for (i=0; i<25; i++)
-    {
-        for (j=0; j<25; j++)
-        {
-            dirt.rect.x = 32*i;
-            dirt.rect.y = 32*j;
-            SDL_RenderCopy(rend, dirt.text, NULL, &dirt.rect);
-        }
-    }
+    draw_map();
 
     /* Draw image to the window */
     SDL_RenderCopy(rend, tex, NULL, &dest);
@@ -270,6 +276,22 @@ int init_SDL()
         SDL_DestroyWindow(win);
         SDL_Quit();
         return 1;
+    }
+}
+
+
+
+void draw_map()
+{
+    int i; int j;
+    for (i = 0; i < game.tile_width; i++)
+    {
+        for (j = 0; j < game.tile_height; j++)
+        {
+            tile[0].rect.x = 32*i;
+            tile[0].rect.y = 32*j;
+            SDL_RenderCopy(rend, tile[0].text, NULL, &tile[0].rect);
+        }
     }
 }
 
