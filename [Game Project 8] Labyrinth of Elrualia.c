@@ -5,7 +5,7 @@
 
 #define WINDOW_WIDTH (640)
 #define WINDOW_HEIGHT (480)
-#define SCROLL_SPEED (300)
+#define SPEED (300)
 
 int main(int argc, char *argv[])
 {
@@ -67,26 +67,69 @@ int main(int argc, char *argv[])
 
     /* Get the dimensions of the texture */
     SDL_QueryTexture(tex, NULL, NULL, &dest.w, &dest.h);
+    dest.w /= 4;
+    dest.h /= 4;
 
     /* X & Y position */
-    dest.x = (WINDOW_WIDTH - dest.w) / 2;
-    float y_pos = WINDOW_HEIGHT;
+    float x_pos = (WINDOW_WIDTH - dest.w) / 2;
+    float y_pos = (WINDOW_HEIGHT - dest.h) / 2;
+
+    /* X & Y Velocity */
+    float x_vel = SPEED;
+    float y_vel = SPEED;
+
+    /* Close window when set to 1*/
+    int close_requested = 0;
 
     /** Animation Loop **/
-    while (dest.y >= -dest.h)
+    while (!close_requested)
     {
+        /* Events */
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                close_requested = 1;
+            }
+        }
+
+        /* Collision with bounds */
+        if (x_pos <= 0)
+        {
+            x_pos = 0;
+            x_vel = -x_vel;
+        }
+        if (y_pos <= 0)
+        {
+            y_pos = 0;
+            y_vel = -y_vel;
+        }
+        if (x_pos >= WINDOW_WIDTH - dest.w)
+        {
+            x_pos = WINDOW_WIDTH - dest.w;
+            x_vel = -x_vel;
+        }
+        if (y_pos >= WINDOW_HEIGHT - dest.h)
+        {
+            y_pos = WINDOW_HEIGHT - dest.h;
+            y_vel = -y_vel;
+        }
+
+        /* Update position */
+        x_pos += x_vel / 60;
+        y_pos += y_vel / 60;
+
+        /* Set position in the struct */
+        dest.x = (int) x_pos;
+        dest.y = (int) y_pos;
+
         /* Clear the window */
         SDL_RenderClear(rend);
-
-        /* Y position */
-        dest.y = (int) y_pos;
 
         /* Draw image to the window */
         SDL_RenderCopy(rend, tex, NULL, &dest);
         SDL_RenderPresent(rend);
-
-        /* Update sprite position */
-        y_pos -= (float) SCROLL_SPEED / 60;
 
         /* 60 FPS */
         SDL_Delay(1000/60);
