@@ -160,15 +160,6 @@ void select_map()
         load_map(map_001);
         break;
 
-    case 2:
-        load_map(map_002);
-        border_map(MAP_WIDTH, MAP_HEIGHT, main_map);
-        break;
-
-    case 3:
-        load_map(map_003);
-        break;
-
 	case 4:
 		generate_map(20, 20, main_map);
 		load_map(main_map);
@@ -321,60 +312,56 @@ void win_condition()
 int player_collide()
 {
     /* Out of Bounds */
-    if (player.pos[0] < 0 || player.pos[0] >= 20 || player.pos[1] < 0 || player.pos[1] >= 20)
-    {
-        return 0;
-    }
+    if (player.pos[0] < 0 || player.pos[0] >= 20 || player.pos[1] < 0 || player.pos[1] >= 20) return 0;
 
-    /* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
-    int p_p = main_map[player.pos[0]][player.pos[1]];
-    if (p_p == 0)
+    int map_tile = game.map[player.pos[0]][player.pos[1]];
+    if (map_tile == 0)
     {
         printf("You walked on Grass.\n");
         return 1;
     }
 
-    if (p_p == 1)
+    if (map_tile == 1)
     {
         printf("You walked on a Flower.\n");
         return 1;
     }
 
-    if (p_p == 2)
+    if (map_tile == 2)
     {
         printf("You can't walk through a Tree!\n");
         return 0;
     }
 
-    if (p_p == 3)
+    if (map_tile == 3)
     {
         printf("You can't walk through a Rock!\n");
         return 0;
     }
 
-    if (p_p == 4)
+    if (map_tile == 4)
     {
-        main_map[player.pos[0]][player.pos[1]]= 0;
+        game.map[player.pos[0]][player.pos[1]]= 0;
         printf("You found a Key on the ground!\n");
         player.key++;
         return 1;
     }
 
-    if (p_p == 5)
+    if (map_tile == 5)
     {
-        main_map[player.pos[0]][player.pos[1]]= 0;
+        game.map[player.pos[0]][player.pos[1]]= 0;
         printf("You found a Coin on the ground!\n");
         player.coin++;
         return 1;
     }
 
-    if (p_p == 6)
+    if (map_tile == 6)
     {
         printf("You found a Lock on your way!\n");
         if (player.key > 0)
         {
-            main_map[player.pos[0]][player.pos[1]]= 0;
-            printf("You've used a Key to open the Lock!");
+            game.map[player.pos[0]][player.pos[1]]= 0;
+            printf("You've used a Key to open the Lock!\n");
             player.key--;
             return 1;
         }
@@ -385,41 +372,22 @@ int player_collide()
         }
     }
 
-    if (p_p == 7)
+    if (map_tile == 7)
     {
-        main_map[player.pos[0]][player.pos[1]]= 0;
         printf("You stepped on a trap!\nYou lost 1 HP!\n");
         player.health--;
         return 1;
     }
 
-    if (p_p == 8)
+    if (map_tile == 8)
     {
-        main_map[player.pos[0]][player.pos[1]]= 0;
+        game.map[player.pos[0]][player.pos[1]]= 0;
         printf("You met a monster on your way!\nYou lost 1 HP by fighting him!\n");
+        player.kill++;
         player.health--;
         return 1;
     }
 }
-
-
-
-void border_map(int width, int height, int map[width][height])
-{
-	int l; int c;
-
-	for (l=0; l<height; l++)
-	{
-		for (c=0; c<width; c++)
-		{
-			if ((l%height==0) || (c%width==0) || (l==height-1) || (c==width-1))
-			{
-				map[l][c] = 2;
-			}
-		}
-	}
-}
-
 
 
 /* ------------------------------ */
