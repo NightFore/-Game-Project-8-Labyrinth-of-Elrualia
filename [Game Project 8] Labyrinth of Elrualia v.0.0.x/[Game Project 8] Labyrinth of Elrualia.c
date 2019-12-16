@@ -10,7 +10,6 @@ void events();
 void draw();
 
 void select_map();
-void load_map(int map[20][20]);
 
 void draw_map();
 void status();
@@ -19,7 +18,6 @@ void player_movement();
 void win_condition();
 
 int player_collide();
-void border_map(int width, int height, int map[width][height]);
 
 void generate_map(int width, int height, int map[width][height]);
 int *generate_position(int min_width, int min_height, int max_width, int max_height);
@@ -52,38 +50,6 @@ struct
 } player;
 
 
-
-    /* Temporary */
-int main_map[20][20];
-
-int map_001[20][20] =
-    {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5},
-    {0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 3},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 8, 8, 0, 0},
-    {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
-    {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
-    {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0},
-    {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
-    };
-
-int map_002[20][20];
-int map_003[20][20];
-
-
 /* ------------------------------ */
 
 /* ----- Main Functions ----- */
@@ -93,7 +59,7 @@ int main()
 {
     /** Start Game **/
     init();
-    while (PLAYING==1)
+    while (!game.playing)
     {
         events();
         draw();
@@ -109,41 +75,50 @@ int main()
     }
 }
 
-void init()
-{
-    srand(time(NULL));
-    init_player();
-    select_map();
-    draw_map();
-}
-
-void events()
-{
-    player_movement();
-    win_condition();
-}
-
-void draw()
-{
-    draw_map();
-    status();
-}
-
 
 /* ------------------------------ */
 
 /* ----- Initialization Functions ----- */
 
 /* ------------------------------ */
-void init_player()
+void init()
 {
-    PLAYING = 1;
+    game.playing = 0;
+    srand(time(NULL));
+
     player.pos[0] = 0;
     player.pos[1] = 0;
     player.health = 10;
     player.coin = 0;
     player.key = 0;
     player.kill = 0;
+
+    int map_001[20][20] =
+        {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5},
+        {0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 3},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 8, 8, 0, 0},
+        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
+        {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+        {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0},
+        {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
+        };
+    load_map(game.map_001, map_001);
+
+    select_map();
 }
 
 void select_map()
@@ -151,37 +126,36 @@ void select_map()
     int l; int c;
     int map_selection;
 
-    printf("Select a Map (1/2/3 or 4: Random): ");
+    printf("Select a Map (0: Normal or 1: Random): ");
     scanf("%d", &map_selection);
 
     switch(map_selection)
     {
-    case 1:
-        load_map(map_001);
+    case 0:
+        load_map(game.map, game.map_001);
         break;
 
-	case 4:
-		generate_map(20, 20, main_map);
-		load_map(main_map);
+    case 1:
+		generate_map(20, 20, game.map);
 		break;
 
     default:
-        printf("Please select a correct map\n");
+        printf("Please type a correct number\n");
         select_map();
     }
+    draw();
 }
 
-void load_map(int map[20][20])
+void load_map(int map1[20][20], int map2[20][20])
 {
     int l; int c;
     for (l=0; l<20; l++)
     {
         for (c=0; c<20; c++)
         {
-            main_map[l][c] = map[l][c];
+            map1[l][c] = map2[l][c];
         }
     }
-    printf("\n");
 }
 
 
@@ -191,6 +165,12 @@ void load_map(int map[20][20])
 /* ----- Draw Functions ----- */
 
 /* ------------------------------ */
+void draw()
+{
+    draw_map();
+    status();
+}
+
 void draw_map()
 {
     int index_l; int index_c;
@@ -200,7 +180,7 @@ void draw_map()
         {
             if (index_l != player.pos[0] || index_c != player.pos[1])
             {
-                printf("%d ", main_map[index_l][index_c]);
+                printf("%d ", game.map[index_l][index_c]);
             }
             else
             {
@@ -219,14 +199,9 @@ void draw_map()
 /* ----- Events Functions ----- */
 
 /* ------------------------------ */
-void status()
+void events()
 {
-    printf("Health: %d\n", player.health);
-    printf("Coin(s): %d / 10\n", player.coin);
-    printf("Key(s): %d\n", player.key);
-    printf("Kill(s): %d\n", player.kill);
-    printf("\n");
-
+    player_movement();
 }
 
 void player_movement()
@@ -287,18 +262,45 @@ void player_movement()
     printf("\n");
 }
 
+void status()
+{
+    printf("\n");
+    printf("Health: %d\n", player.health);
+    printf("Coin(s): %d / 10\n", player.coin);
+    printf("Key(s): %d\n", player.key);
+    printf("Kill(s): %d\n", player.kill);
+    printf("\n");
+
+    win_condition();
+}
+
 void win_condition()
 {
     if (player.coin >= 10)
     {
         printf("You've win! Game Over!\n");
-        PLAYING = 0;
+        new_game();
     }
 
     if (player.health <= 0)
     {
         printf("You've died! Game Over!\n");
-        PLAYING = 0;
+        new_game();
+    }
+}
+
+void new_game()
+{
+    int input;
+    printf("Do you want to play again? Type 0 to continue: ");
+    scanf("%d", &input);
+    if (input == 0)
+    {
+        init();
+    }
+    else
+    {
+        game.playing = !game.playing;
     }
 }
 
