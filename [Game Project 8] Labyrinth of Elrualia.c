@@ -231,6 +231,10 @@ void select_map()
         load_map(game.map, game.map_001);
         break;
 
+    case 1:
+		generate_map(20, 20, game.map);
+		break;
+
     default:
         printf("Please select a correct map\n");
         select_map();
@@ -496,3 +500,147 @@ void draw_map()
     SDL_RenderCopy(game.rend, player.text, NULL, &player.rect);
 }
 
+
+
+/* ------------------------------ */
+
+/* ----- Map Functions ----- */
+
+/* ------------------------------ */
+void generate_map(int width, int height, int map[width][height])
+{
+    int g_player[2];
+    int g_flower = 0; int g_tree = 0; int g_rock = 0;
+    int g_key = 0; int g_coin = 0; int g_lock = 0;
+    int g_trap = 0; int g_monster = 0;
+    int *g_pos;
+    int pos[2];
+
+	while (g_flower < 2)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 1;
+        g_flower++;
+	}
+
+	while (g_tree < 5)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 2;
+        g_tree++;
+	}
+
+	while (g_rock < 5)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 3;
+        g_rock++;
+	}
+
+	while (g_key < 1)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 4;
+        g_key++;
+	}
+
+	while (g_lock < 1)
+	{
+        generate_treasure(5, 6, 2, width, height, map);
+        g_lock++; g_coin++;
+	}
+
+	while (g_coin < 10)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 5;
+        g_coin++;
+	}
+
+	while (g_trap < 10)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 7;
+        g_trap++;
+	}
+
+	while (g_monster < 5)
+	{
+        g_pos = generate_position(0, 0, width, height);
+        map[*g_pos][*(g_pos+1)] = 8;
+        g_monster++;
+	}
+
+    g_pos = generate_position(0, 0, width, height);
+    player.pos[0] = *g_pos;
+    player.pos[1] = *(g_pos+1);
+}
+
+int generate_position(int min_width, int min_height, int max_width, int max_height)
+{
+    static int pos[2];
+
+    do{
+        do{ pos[0] = rand() % max_width;;
+        } while (pos[0] < min_width);
+
+        do{ pos[1] = rand() % max_height;
+        } while (pos[1] < min_height);
+
+    } while (game.map[pos[0]][pos[1]] != 0);
+
+    return pos;
+}
+
+void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height])
+{
+    /** 1: Treasure / 2: Lock / 3: Obstacle **/
+
+    int i; int j;
+    int *g_pos = generate_position(1, 1, width-1, height-1);
+    int x = *g_pos; int y = *(g_pos+1);
+    int pos[2];
+
+    /* Direction */
+    if (abs(x-width/2) > abs(y-height/2))
+        {
+            if (x > (width)/2)
+            {
+                pos[0] = x+1; pos[1] = y;
+            }
+            else
+            {
+                pos[0] = x-1; pos[1] = y;
+            }
+        }
+        else
+        {
+            if (y > (height)/2)
+            {
+                pos[0] = x; pos[1] = y+1;
+            }
+            else
+            {
+                pos[0] = x; pos[1] = y-1;
+            }
+        }
+
+    /* Generate Object */
+    map[x][y] = object_2;
+
+    for (i = -1; i <= 1; i++)
+    {
+        for (j = -1; j <= 1; j++)
+        {
+            if (i == 0 && j == 0)
+            {
+                map[pos[0]+i][pos[1]+j] = object_1;
+            }
+
+            if (abs(i) != abs(j) && map[pos[0]+i][pos[1]+j] != object_2)
+            {
+                map[pos[0]+i][pos[1]+j] = object_3;
+            }
+        }
+    }
+}
