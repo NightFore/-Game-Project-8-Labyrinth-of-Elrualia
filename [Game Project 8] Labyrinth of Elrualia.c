@@ -60,10 +60,9 @@ struct
 
 /* ------------------------------ */
 
-/* ----- Struct ----- */
+/* ----- Prototyping ----- */
 
 /* ------------------------------ */
-int main(int argc, char *argv[]);
 void quit_game();
 
 int init_SDL();
@@ -81,7 +80,7 @@ int player_collide();
 void draw();
 void draw_map();
 void generate_map(int width, int height, int map[width][height]);
-int generate_position(int min_width, int min_height, int max_width, int max_height);
+int *generate_position(int min_width, int min_height, int max_width, int max_height);
 void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height]);
 
 
@@ -475,7 +474,6 @@ int player_collide()
         player.health--;
         return 1;
     }
-
 }
 
 
@@ -597,7 +595,7 @@ void generate_map(int width, int height, int map[width][height])
     player.pos[1] = *(g_pos+1);
 }
 
-int generate_position(int min_width, int min_height, int max_width, int max_height)
+int *generate_position(int min_width, int min_height, int max_width, int max_height)
 {
     static int pos[2];
 

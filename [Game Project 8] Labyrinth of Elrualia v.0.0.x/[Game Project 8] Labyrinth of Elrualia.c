@@ -33,15 +33,23 @@ int MAP_HEIGHT = 20;
 /** 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster **/
 
     /* Global Variables */
-struct PLAYER
+
+struct
 {
-    int position[2];
+    int playing;
+
+    int map[20][20];
+    int map_001[20][20];
+} game;
+
+struct
+{
+    int pos[2];
     int health;
-    int flower;
     int coin;
     int key;
     int kill;
-}; struct PLAYER player;
+} player;
 
 
 
@@ -130,10 +138,9 @@ void draw()
 void init_player()
 {
     PLAYING = 1;
-    player.position[0] = 0;
-    player.position[1] = 0;
+    player.pos[0] = 0;
+    player.pos[1] = 0;
     player.health = 10;
-    player.flower = 0;
     player.coin = 0;
     player.key = 0;
     player.kill = 0;
@@ -200,7 +207,7 @@ void draw_map()
     {
         for (index_c=0; index_c<20; index_c++)
         {
-            if (index_l != player.position[0] || index_c != player.position[1])
+            if (index_l != player.pos[0] || index_c != player.pos[1])
             {
                 printf("%d ", main_map[index_l][index_c]);
             }
@@ -224,7 +231,6 @@ void draw_map()
 void status()
 {
     printf("Health: %d\n", player.health);
-    printf("Flower(s): %d\n", player.flower);
     printf("Coin(s): %d / 10\n", player.coin);
     printf("Key(s): %d\n", player.key);
     printf("Kill(s): %d\n", player.kill);
@@ -241,40 +247,40 @@ void player_movement()
     {
         /* Left */
         case 4:
-            player.position[1]--;
+            player.pos[1]--;
             if (player_collide() == 0)
             {
-                player.position[1]++;
+                player.pos[1]++;
                 printf("You cannot move to the left.\n");
             }
             break;
 
         /* Right */
         case 6:
-            player.position[1]++;
+            player.pos[1]++;
             if (player_collide() == 0)
             {
-                player.position[1]--;
+                player.pos[1]--;
                 printf("You cannot move to the right.\n");
             }
             break;
 
         /* Bot */
         case 2:
-            player.position[0]++;
+            player.pos[0]++;
             if (player_collide() == 0)
             {
-                player.position[0]--;
+                player.pos[0]--;
                 printf("You cannot move to the bot.\n");
             }
             break;
 
         /* Top */
         case 8:
-            player.position[0]--;
+            player.pos[0]--;
             if (player_collide() == 0)
             {
-                player.position[0]++;
+                player.pos[0]++;
                 printf("You cannot move to the top.\n");
             }
             break;
@@ -315,13 +321,13 @@ void win_condition()
 int player_collide()
 {
     /* Out of Bounds */
-    if (player.position[0] < 0 || player.position[0] >= 20 || player.position[1] < 0 || player.position[1] >= 20)
+    if (player.pos[0] < 0 || player.pos[0] >= 20 || player.pos[1] < 0 || player.pos[1] >= 20)
     {
         return 0;
     }
 
     /* 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster */
-    int p_p = main_map[player.position[0]][player.position[1]];
+    int p_p = main_map[player.pos[0]][player.pos[1]];
     if (p_p == 0)
     {
         printf("You walked on Grass.\n");
@@ -331,7 +337,6 @@ int player_collide()
     if (p_p == 1)
     {
         printf("You walked on a Flower.\n");
-        player.flower++;
         return 1;
     }
 
@@ -349,7 +354,7 @@ int player_collide()
 
     if (p_p == 4)
     {
-        main_map[player.position[0]][player.position[1]]= 0;
+        main_map[player.pos[0]][player.pos[1]]= 0;
         printf("You found a Key on the ground!\n");
         player.key++;
         return 1;
@@ -357,7 +362,7 @@ int player_collide()
 
     if (p_p == 5)
     {
-        main_map[player.position[0]][player.position[1]]= 0;
+        main_map[player.pos[0]][player.pos[1]]= 0;
         printf("You found a Coin on the ground!\n");
         player.coin++;
         return 1;
@@ -368,7 +373,7 @@ int player_collide()
         printf("You found a Lock on your way!\n");
         if (player.key > 0)
         {
-            main_map[player.position[0]][player.position[1]]= 0;
+            main_map[player.pos[0]][player.pos[1]]= 0;
             printf("You've used a Key to open the Lock!");
             player.key--;
             return 1;
@@ -382,7 +387,7 @@ int player_collide()
 
     if (p_p == 7)
     {
-        main_map[player.position[0]][player.position[1]]= 0;
+        main_map[player.pos[0]][player.pos[1]]= 0;
         printf("You stepped on a trap!\nYou lost 1 HP!\n");
         player.health--;
         return 1;
@@ -390,7 +395,7 @@ int player_collide()
 
     if (p_p == 8)
     {
-        main_map[player.position[0]][player.position[1]]= 0;
+        main_map[player.pos[0]][player.pos[1]]= 0;
         printf("You met a monster on your way!\nYou lost 1 HP by fighting him!\n");
         player.health--;
         return 1;
@@ -431,7 +436,7 @@ void generate_map(int width, int height, int map[width][height])
     int *g_pos;
     int pos[2];
 
-	while (g_flower < 2)
+	while (g_flower < 5)
 	{
         g_pos = generate_position(0, 0, width, height);
         map[*g_pos][*(g_pos+1)] = 1;
@@ -461,7 +466,7 @@ void generate_map(int width, int height, int map[width][height])
 
 	while (g_lock < 1)
 	{
-        generate_treasure(5, 6, 2, width, height, map);
+        generate_treasure(5, 6, 3, width, height, map);
         g_lock++; g_coin++;
 	}
 
@@ -472,14 +477,14 @@ void generate_map(int width, int height, int map[width][height])
         g_coin++;
 	}
 
-	while (g_trap < 10)
+	while (g_trap < 5)
 	{
         g_pos = generate_position(0, 0, width, height);
         map[*g_pos][*(g_pos+1)] = 7;
         g_trap++;
 	}
 
-	while (g_monster < 5)
+	while (g_monster < 10)
 	{
         g_pos = generate_position(0, 0, width, height);
         map[*g_pos][*(g_pos+1)] = 8;
@@ -487,8 +492,8 @@ void generate_map(int width, int height, int map[width][height])
 	}
 
     g_pos = generate_position(0, 0, width, height);
-    player.position[0] = *g_pos;
-    player.position[1] = *(g_pos+1);
+    player.pos[0] = *g_pos;
+    player.pos[1] = *(g_pos+1);
 }
 
 int *generate_position(int min_width, int min_height, int max_width, int max_height)
@@ -502,7 +507,7 @@ int *generate_position(int min_width, int min_height, int max_width, int max_hei
         do{ pos[1] = rand() % max_height;
         } while (pos[1] < min_height);
 
-    } while (main_map[pos[0]][pos[1]] != 0);
+    } while (game.map[pos[0]][pos[1]] != 0);
 
     return pos;
 }
