@@ -176,6 +176,7 @@ int init_SDL()
         SDL_Quit();
         return 1;
     }
+    return 0;
 }
 
 
@@ -238,7 +239,6 @@ void init()
 
 void select_map()
 {
-    int l; int c;
     int map_selection;
 
     printf("Select a Map (0: Normal or 1: Random): ");
@@ -371,6 +371,7 @@ void win_condition()
     if (player.coin >= 10)
     {
         printf("You've win! Game Over!\n");
+        draw();
         new_game();
     }
 
@@ -474,6 +475,7 @@ int player_collide()
         player.health--;
         return 1;
     }
+    return 1;
 }
 
 
@@ -528,12 +530,10 @@ void draw_map()
 /* ------------------------------ */
 void generate_map(int width, int height, int map[width][height])
 {
-    int g_player[2];
     int g_flower = 0; int g_tree = 0; int g_rock = 0;
     int g_key = 0; int g_coin = 0; int g_lock = 0;
     int g_trap = 0; int g_monster = 0;
     int *g_pos;
-    int pos[2];
 
 	while (g_flower < 5)
 	{
