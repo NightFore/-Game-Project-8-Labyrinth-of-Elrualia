@@ -9,10 +9,11 @@
 #define SPEED (300)
 #define FPS (60)
 #define TILESIZE (32)
-
-/** 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster **/
+#define TILENUMBER (9)
 
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
+
+/** 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster **/
 
 
 
@@ -26,7 +27,7 @@ struct image
     SDL_Surface* surf;
     SDL_Texture* text;
     SDL_Rect rect;
-} tile[9];
+} tile[TILENUMBER];
 
 struct
 {
@@ -40,11 +41,6 @@ struct
 
     int map[20][20];
     int map_001[20][20];
-
-    int up;
-    int down;
-    int left;
-    int right;
 } game;
 
 struct
@@ -55,13 +51,38 @@ struct
 
     int pos[2];
     int health;
-    int flower;
     int coin;
     int key;
     int kill;
 } player;
 
-SDL_Rect dest;
+
+
+/* ------------------------------ */
+
+/* ----- Struct ----- */
+
+/* ------------------------------ */
+int main(int argc, char *argv[]);
+void quit_game();
+
+int init_SDL();
+void init();
+void select_map();
+void load_tile(struct image *tile, char directory[]);
+void load_map(int map1[20][20], int map2[20][20]);
+
+void events();
+void status();
+void win_condition();
+void new_game();
+int player_collide();
+
+void draw();
+void draw_map();
+void generate_map(int width, int height, int map[width][height]);
+int generate_position(int min_width, int min_height, int max_width, int max_height);
+void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height]);
 
 
 
@@ -79,7 +100,6 @@ int main(int argc, char *argv[])
         events();
         draw();
     }
-
     return 0;
 }
 
@@ -90,7 +110,7 @@ void quit_game()
 
     /** Clean up **/
     int i;
-    for (i=0; i<9; i++)
+    for (i=0; i<TILENUMBER; i++)
     {
         SDL_DestroyTexture(tile[i].text);
     }
@@ -105,64 +125,6 @@ void quit_game()
 /* ----- Initialization Functions ----- */
 
 /* ------------------------------ */
-void init()
-{
-    game.playing = 0;
-    srand(time(NULL));
-
-    game.tile_height = WINDOW_HEIGHT / TILESIZE;
-    game.tile_width = WINDOW_WIDTH / TILESIZE;
-
-    load_tile(&tile[0], "data/graphics/tile_lpc_grass.png");
-    load_tile(&tile[1], "data/graphics/tile_lpc_flower.png");
-    load_tile(&tile[2], "data/graphics/tile_lpc_tree.png");
-    load_tile(&tile[3], "data/graphics/tile_lpc_rock.png");
-    load_tile(&tile[4], "data/graphics/item_raventale_loot_05_key.png");
-    load_tile(&tile[5], "data/graphics/item_raventale_loot_04_coins.png");
-    load_tile(&tile[6], "data/graphics/item_raventale_loot_06_chest.png");
-    load_tile(&tile[7], "data/graphics/tile_lpc_trap.png");
-    load_tile(&tile[8], "data/graphics/character_pipoya_enemy_04_1.png");
-
-    player.surf = IMG_Load("data/graphics/character_pipoya_male_01_2.png");
-    player.text = SDL_CreateTextureFromSurface(game.rend, player.surf);
-    player.rect.w = TILESIZE; player.rect.h = TILESIZE;
-    player.pos[0] = 0;
-    player.pos[1] = 0;
-    player.health = 10;
-    player.flower = 0;
-    player.coin = 0;
-    player.key = 0;
-    player.kill = 0;
-
-
-    int map_001[20][20] =
-        {
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5},
-        {0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 3},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 8, 8, 0, 0},
-        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
-        {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
-        {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0},
-        {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
-        };
-    load_map(game.map_001, map_001);
-
-    select_map();
-}
-
 int init_SDL()
 {
     /** Initialization **/
@@ -217,6 +179,64 @@ int init_SDL()
     }
 }
 
+
+
+void init()
+{
+    game.playing = 0;
+    srand(time(NULL));
+
+    game.tile_height = WINDOW_HEIGHT / TILESIZE;
+    game.tile_width = WINDOW_WIDTH / TILESIZE;
+
+    load_tile(&tile[0], "data/graphics/tile_lpc_grass.png");
+    load_tile(&tile[1], "data/graphics/tile_lpc_flower.png");
+    load_tile(&tile[2], "data/graphics/tile_lpc_tree.png");
+    load_tile(&tile[3], "data/graphics/tile_lpc_rock.png");
+    load_tile(&tile[4], "data/graphics/item_raventale_loot_05_key.png");
+    load_tile(&tile[5], "data/graphics/item_raventale_loot_04_coins.png");
+    load_tile(&tile[6], "data/graphics/item_raventale_loot_06_chest.png");
+    load_tile(&tile[7], "data/graphics/tile_lpc_trap.png");
+    load_tile(&tile[8], "data/graphics/character_pipoya_enemy_04_1.png");
+
+    player.surf = IMG_Load("data/graphics/character_pipoya_male_01_2.png");
+    player.text = SDL_CreateTextureFromSurface(game.rend, player.surf);
+    player.rect.w = TILESIZE; player.rect.h = TILESIZE;
+    player.pos[0] = 0;
+    player.pos[1] = 0;
+    player.health = 10;
+    player.coin = 0;
+    player.key = 0;
+    player.kill = 0;
+
+    int map_001[20][20] =
+        {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5},
+        {0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 3},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 8, 8, 0, 0},
+        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
+        {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+        {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0},
+        {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
+        };
+    load_map(game.map_001, map_001);
+
+    select_map();
+}
+
 void select_map()
 {
     int l; int c;
@@ -236,7 +256,7 @@ void select_map()
 		break;
 
     default:
-        printf("Please select a correct map\n");
+        printf("Please type a correct number\n");
         select_map();
     }
 }
@@ -246,7 +266,7 @@ void load_tile(struct image *tile, char directory[])
     struct image t_tile;
     t_tile.surf = IMG_Load(directory);
     t_tile.text = SDL_CreateTextureFromSurface(game.rend, t_tile.surf);
-    t_tile.rect.w = TILESIZE; t_tile.rect.h = TILESIZE;
+    t_tile.rect.w = t_tile.rect.h = TILESIZE;
 
     *tile = t_tile;
 }
@@ -339,7 +359,6 @@ void status()
 {
     printf("\n");
     printf("Health: %d\n", player.health);
-    printf("Flower(s): %d\n", player.flower);
     printf("Coin(s): %d / 10\n", player.coin);
     printf("Key(s): %d\n", player.key);
     printf("Kill(s): %d\n", player.kill);
@@ -392,9 +411,7 @@ int player_collide()
 
     if (map_tile == 1)
     {
-        game.map[player.pos[0]][player.pos[1]]= 0;
         printf("You walked on a Flower.\n");
-        player.flower++;
         return 1;
     }
 
@@ -454,6 +471,7 @@ int player_collide()
     {
         game.map[player.pos[0]][player.pos[1]]= 0;
         printf("You met a monster on your way!\nYou lost 1 HP by fighting him!\n");
+        player.kill++;
         player.health--;
         return 1;
     }
@@ -484,6 +502,7 @@ void draw()
 
 void draw_map()
 {
+    /* Map Tile */
     int l; int c; int t;
     for (l = 0; l < game.tile_height; l++)
     {
@@ -495,6 +514,8 @@ void draw_map()
             SDL_RenderCopy(game.rend, tile[t].text, NULL, &tile[t].rect);
         }
     }
+
+    /* Player */
     player.rect.x = 32 * player.pos[1];
     player.rect.y = 32 * player.pos[0];
     SDL_RenderCopy(game.rend, player.text, NULL, &player.rect);
@@ -516,7 +537,7 @@ void generate_map(int width, int height, int map[width][height])
     int *g_pos;
     int pos[2];
 
-	while (g_flower < 2)
+	while (g_flower < 5)
 	{
         g_pos = generate_position(0, 0, width, height);
         map[*g_pos][*(g_pos+1)] = 1;
@@ -546,7 +567,7 @@ void generate_map(int width, int height, int map[width][height])
 
 	while (g_lock < 1)
 	{
-        generate_treasure(5, 6, 2, width, height, map);
+        generate_treasure(5, 6, 3, width, height, map);
         g_lock++; g_coin++;
 	}
 
@@ -557,14 +578,14 @@ void generate_map(int width, int height, int map[width][height])
         g_coin++;
 	}
 
-	while (g_trap < 10)
+	while (g_trap < 5)
 	{
         g_pos = generate_position(0, 0, width, height);
         map[*g_pos][*(g_pos+1)] = 7;
         g_trap++;
 	}
 
-	while (g_monster < 5)
+	while (g_monster < 10)
 	{
         g_pos = generate_position(0, 0, width, height);
         map[*g_pos][*(g_pos+1)] = 8;
