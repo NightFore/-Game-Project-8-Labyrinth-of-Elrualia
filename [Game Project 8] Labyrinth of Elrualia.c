@@ -38,7 +38,8 @@ struct
     int tile_width;
     int tile_height;
 
-    int map[60][60];
+    int map[20][20];
+    int map_001[20][20];
 
     int up;
     int down;
@@ -73,7 +74,6 @@ int main(int argc, char *argv[])
 {
     init_SDL();
     init();
-    load();
     while (!game.playing)
     {
         events();
@@ -112,6 +112,55 @@ void init()
 
     game.tile_height = WINDOW_HEIGHT / TILESIZE;
     game.tile_width = WINDOW_WIDTH / TILESIZE;
+
+    load_tile(&tile[0], "data/graphics/tile_lpc_grass.png");
+    load_tile(&tile[1], "data/graphics/tile_lpc_flower.png");
+    load_tile(&tile[2], "data/graphics/tile_lpc_tree.png");
+    load_tile(&tile[3], "data/graphics/tile_lpc_rock.png");
+    load_tile(&tile[4], "data/graphics/item_raventale_loot_05_key.png");
+    load_tile(&tile[5], "data/graphics/item_raventale_loot_04_coins.png");
+    load_tile(&tile[6], "data/graphics/item_raventale_loot_06_chest.png");
+    load_tile(&tile[7], "data/graphics/tile_lpc_trap.png");
+    load_tile(&tile[8], "data/graphics/character_pipoya_enemy_04_1.png");
+
+    player.surf = IMG_Load("data/graphics/character_pipoya_male_01_2.png");
+    player.text = SDL_CreateTextureFromSurface(game.rend, player.surf);
+    player.rect.w = TILESIZE; player.rect.h = TILESIZE;
+    player.pos[0] = 0;
+    player.pos[1] = 0;
+    player.health = 10;
+    player.flower = 0;
+    player.coin = 0;
+    player.key = 0;
+    player.kill = 0;
+
+
+    int map_001[20][20] =
+        {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5},
+        {0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 3},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 8, 8, 0, 0},
+        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
+        {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
+        {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0},
+        {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
+        };
+    load_map(game.map_001, map_001);
+
+    select_map();
 }
 
 int init_SDL()
@@ -168,55 +217,24 @@ int init_SDL()
     }
 }
 
-void load()
+void select_map()
 {
-    load_tile(&tile[0], "data/graphics/tile_lpc_grass.png");
-    load_tile(&tile[1], "data/graphics/tile_lpc_flower.png");
-    load_tile(&tile[2], "data/graphics/tile_lpc_tree.png");
-    load_tile(&tile[3], "data/graphics/tile_lpc_rock.png");
-    load_tile(&tile[4], "data/graphics/item_raventale_loot_05_key.png");
-    load_tile(&tile[5], "data/graphics/item_raventale_loot_04_coins.png");
-    load_tile(&tile[6], "data/graphics/item_raventale_loot_06_chest.png");
-    load_tile(&tile[7], "data/graphics/tile_lpc_trap.png");
-    load_tile(&tile[8], "data/graphics/character_pipoya_enemy_04_1.png");
+    int l; int c;
+    int map_selection;
 
-    player.surf = IMG_Load("data/graphics/character_pipoya_male_01_2.png");
-    player.text = SDL_CreateTextureFromSurface(game.rend, player.surf);
-    player.rect.w = TILESIZE; player.rect.h = TILESIZE;
-    player.pos[0] = 0;
-    player.pos[1] = 0;
-    player.health = 10;
-    player.flower = 0;
-    player.coin = 0;
-    player.key = 0;
-    player.kill = 0;
+    printf("Select a Map (0: Normal or 1: Random): ");
+    scanf("%d", &map_selection);
 
+    switch(map_selection)
+    {
+    case 0:
+        load_map(game.map, game.map_001);
+        break;
 
-    int map_001[20][20] =
-        {
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5},
-        {0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 3},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 8, 8, 0, 0},
-        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5},
-        {0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 3, 3, 3},
-        {5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0},
-        {0, 0, 3, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 5}
-        };
-
-    load_map(map_001);
+    default:
+        printf("Please select a correct map\n");
+        select_map();
+    }
 }
 
 void load_tile(struct image *tile, char directory[])
@@ -229,14 +247,14 @@ void load_tile(struct image *tile, char directory[])
     *tile = t_tile;
 }
 
-void load_map(int map[20][20])
+void load_map(int map1[20][20], int map2[20][20])
 {
     int l; int c;
     for (l=0; l<game.tile_height; l++)
     {
         for (c=0; c<game.tile_width; c++)
         {
-            game.map[l][c] = map[l][c];
+            map1[l][c] = map2[l][c];
         }
     }
 }
@@ -344,12 +362,11 @@ void win_condition()
 void new_game()
 {
     int input;
-    printf("Do you want to play again? Type 0 to continue or any other number to stop playing.\n");
+    printf("Do you want to play again? Type 0 to continue: ");
     scanf("%d", &input);
     if (input == 0)
     {
         init();
-        load();
     }
     else
     {
