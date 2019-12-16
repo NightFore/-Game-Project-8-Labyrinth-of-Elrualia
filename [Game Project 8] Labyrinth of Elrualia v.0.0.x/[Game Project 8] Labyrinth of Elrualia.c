@@ -2,36 +2,17 @@
 #include <stdlib.h>
 #include <time.h>
 
-/* Settings */
-    /* Prototyping */
-int PLAYING = 1;
-void init();
-void events();
-void draw();
-
-void select_map();
-
-void draw_map();
-void status();
-
-void player_movement();
-void win_condition();
-
-int player_collide();
-
-void generate_map(int width, int height, int map[width][height]);
-int *generate_position(int min_width, int min_height, int max_width, int max_height);
-void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height]);
-
-    /* Game Settings */
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
-int MAP_WIDTH = 20;
-int MAP_HEIGHT = 20;
 
 /** 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster **/
 
-    /* Global Variables */
 
+
+/* ------------------------------ */
+
+/* ----- Struct ----- */
+
+/* ------------------------------ */
 struct
 {
     int playing;
@@ -50,6 +31,32 @@ struct
 } player;
 
 
+
+/* ------------------------------ */
+
+/* ----- Prototyping ----- */
+
+/* ------------------------------ */
+void init();
+void select_map();
+void load_map();
+
+void draw();
+void draw_map();
+
+void events();
+void player_movement();
+int player_collide();
+void status();
+void win_condition();
+void new_game();
+
+void generate_map(int width, int height, int map[width][height]);
+int *generate_position(int min_width, int min_height, int max_width, int max_height);
+void generate_treasure(int object_1, int object_2, int object_3, int width, int height, int map[width][height]);
+
+
+
 /* ------------------------------ */
 
 /* ----- Main Functions ----- */
@@ -57,21 +64,11 @@ struct
 /* ------------------------------ */
 int main()
 {
-    /** Start Game **/
     init();
     while (!game.playing)
     {
         events();
         draw();
-    }
-
-    /** New Game+ **/
-    int new_game;
-    printf("Do you want to play again? Type 5 to continue or another number to stop.\n");
-    scanf("%d", &new_game);
-    if (new_game == 5)
-    {
-        main();
     }
 }
 
@@ -189,7 +186,6 @@ void draw_map()
         }
         printf("\n");
     }
-    printf("\n");
 }
 
 
@@ -253,7 +249,7 @@ void player_movement()
 
         case 0:
             printf("Shutting down the game...\n");
-            PLAYING = 0;
+            game.playing = !game.playing;
             break;
 
         default:
@@ -262,55 +258,6 @@ void player_movement()
     printf("\n");
 }
 
-void status()
-{
-    printf("\n");
-    printf("Health: %d\n", player.health);
-    printf("Coin(s): %d / 10\n", player.coin);
-    printf("Key(s): %d\n", player.key);
-    printf("Kill(s): %d\n", player.kill);
-    printf("\n");
-
-    win_condition();
-}
-
-void win_condition()
-{
-    if (player.coin >= 10)
-    {
-        printf("You've win! Game Over!\n");
-        new_game();
-    }
-
-    if (player.health <= 0)
-    {
-        printf("You've died! Game Over!\n");
-        new_game();
-    }
-}
-
-void new_game()
-{
-    int input;
-    printf("Do you want to play again? Type 0 to continue: ");
-    scanf("%d", &input);
-    if (input == 0)
-    {
-        init();
-    }
-    else
-    {
-        game.playing = !game.playing;
-    }
-}
-
-
-
-/* ------------------------------ */
-
-/* ----- Gameplay Functions ----- */
-
-/* ------------------------------ */
 int player_collide()
 {
     /* Out of Bounds */
@@ -388,6 +335,48 @@ int player_collide()
         player.kill++;
         player.health--;
         return 1;
+    }
+}
+
+void status()
+{
+    printf("\n");
+    printf("Health: %d\n", player.health);
+    printf("Coin(s): %d / 10\n", player.coin);
+    printf("Key(s): %d\n", player.key);
+    printf("Kill(s): %d\n", player.kill);
+    printf("\n");
+
+    win_condition();
+}
+
+void win_condition()
+{
+    if (player.coin >= 10)
+    {
+        printf("You've win! Game Over!\n");
+        new_game();
+    }
+
+    if (player.health <= 0)
+    {
+        printf("You've died! Game Over!\n");
+        new_game();
+    }
+}
+
+void new_game()
+{
+    int input;
+    printf("Do you want to play again? Type 0 to continue: ");
+    scanf("%d", &input);
+    if (input == 0)
+    {
+        init();
+    }
+    else
+    {
+        game.playing = !game.playing;
     }
 }
 
