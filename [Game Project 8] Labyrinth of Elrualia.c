@@ -15,8 +15,6 @@
 int playing = 0;
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
 
-SDL_Window* win;
-SDL_Renderer* rend;
 
 
 
@@ -35,6 +33,9 @@ struct image
 struct
 {
     int playing;
+
+    SDL_Window* win;
+    SDL_Renderer* rend;
 
     int tile_width;
     int tile_height;
@@ -97,16 +98,10 @@ void quit_game()
         SDL_DestroyTexture(tile[i].text);
     }
     SDL_DestroyTexture(player.text);
-    SDL_DestroyRenderer(rend);
-    SDL_DestroyWindow(win);
+    SDL_DestroyRenderer(game.rend);
+    SDL_DestroyWindow(game.win);
     SDL_Quit();
 }
-
-void update()
-{
-}
-
-
 
 /* ------------------------------ */
 
@@ -133,8 +128,8 @@ int init_SDL()
     }
 
     /** Window **/
-    win = SDL_CreateWindow(PROJECT_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-    if (!win)
+    game.win = SDL_CreateWindow(PROJECT_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+    if (!game.win)
     {
         printf("Error creating window: %s\n", SDL_GetError());
         SDL_Quit();
@@ -143,11 +138,11 @@ int init_SDL()
 
     /** Renderer **/
     Uint32 render_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-    rend = SDL_CreateRenderer(win, -1, render_flags);
-    if (!rend)
+    game.rend = SDL_CreateRenderer(game.win, -1, render_flags);
+    if (!game.rend)
     {
         printf("Error creating renderer: %s\n", SDL_GetError());
-        SDL_DestroyWindow(win);
+        SDL_DestroyWindow(game.win);
         SDL_Quit();
         return 1;
     }
@@ -157,21 +152,21 @@ int init_SDL()
     if (!surface)
     {
         printf("Error creating surface: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(rend);
-        SDL_DestroyWindow(win);
+        SDL_DestroyRenderer(game.rend);
+        SDL_DestroyWindow(game.win);
         SDL_Quit();
         return 1;
     }
 
     /** Texture **/
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surface);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(game.rend, surface);
     SDL_FreeSurface(surface);
     if (!tex)
     {
         printf("Error creating texture: %s\n", SDL_GetError());
         SDL_DestroyTexture(tex);
-        SDL_DestroyRenderer(rend);
-        SDL_DestroyWindow(win);
+        SDL_DestroyRenderer(game.rend);
+        SDL_DestroyWindow(game.win);
         SDL_Quit();
         return 1;
     }
@@ -190,7 +185,7 @@ void load()
     load_tile(&tile[8], "data/graphics/character_pipoya_enemy_04_1.png");
 
     player.surf = IMG_Load("data/graphics/character_pipoya_male_01_2.png");
-    player.text = SDL_CreateTextureFromSurface(rend, player.surf);
+    player.text = SDL_CreateTextureFromSurface(game.rend, player.surf);
     player.rect.w = TILESIZE; player.rect.h = TILESIZE;
     player.pos[0] = 0;
     player.pos[1] = 0;
@@ -232,7 +227,7 @@ void load_tile(struct image *tile, char directory[])
 {
     struct image t_tile;
     t_tile.surf = IMG_Load(directory);
-    t_tile.text = SDL_CreateTextureFromSurface(rend, t_tile.surf);
+    t_tile.text = SDL_CreateTextureFromSurface(game.rend, t_tile.surf);
     t_tile.rect.w = TILESIZE; t_tile.rect.h = TILESIZE;
 
     *tile = t_tile;
@@ -274,22 +269,42 @@ void events()
             {
             case SDL_SCANCODE_W:
             case SDL_SCANCODE_UP:
-                player.pos[1] -= 1;
+                player.pos[0]--;
+                if (!player_collide())
+                {
+                    player.pos[0]++;
+                    printf("You cannot move to the top.\n");
+                }
                 break;
 
             case SDL_SCANCODE_S:
             case SDL_SCANCODE_DOWN:
-                player.pos[1] += 1;
+                player.pos[0]++;
+                if (!player_collide())
+                {
+                    player.pos[0]--;
+                    printf("You cannot move to the bot.\n");
+                }
                 break;
 
             case SDL_SCANCODE_A:
             case SDL_SCANCODE_LEFT:
-                player.pos[0] -= 1;
+                player.pos[1]--;
+                if (!player_collide())
+                {
+                    player.pos[1]++;
+                    printf("You cannot move to the left.\n");
+                }
                 break;
 
             case SDL_SCANCODE_D:
             case SDL_SCANCODE_RIGHT:
-                player.pos[0] += 1;
+                player.pos[1]++;
+                if (!player_collide())
+                {
+                    player.pos[1]--;
+                    printf("You cannot move to the right.\n");
+                }
                 break;
             }
             break;
@@ -304,16 +319,112 @@ void events()
 /* ----- Draw Functions ----- */
 
 /* ------------------------------ */
+void update()
+{
+    player_collide();
+
+}
+
+
+int player_collide()
+{
+    /* Out of Bounds */
+    if (player.pos[0] < 0 || player.pos[0] >= game.tile_height || player.pos[1] < 0 || player.pos[1] >= game.tile_width) return 0;
+
+    int map_tile = game.map[player.pos[0]][player.pos[1]];
+    if (map_tile == 0)
+    {
+        printf("You walked on Grass.\n");
+        return 1;
+    }
+
+    if (map_tile == 1)
+    {
+        printf("You walked on a Flower.\n");
+        player.flower++;
+        return 1;
+    }
+
+    if (map_tile == 2)
+    {
+        printf("You can't walk through a Tree!\n");
+        return 0;
+    }
+
+    if (map_tile == 3)
+    {
+        printf("You can't walk through a Rock!\n");
+        return 0;
+    }
+
+    if (map_tile == 4)
+    {
+        game.map[player.pos[0]][player.pos[1]]= 0;
+        printf("You found a Key on the ground!\n");
+        player.key++;
+        return 1;
+    }
+
+    if (map_tile == 5)
+    {
+        game.map[player.pos[0]][player.pos[1]]= 0;
+        printf("You found a Coin on the ground!\n");
+        player.coin++;
+        return 1;
+    }
+
+    if (map_tile == 6)
+    {
+        printf("You found a Lock on your way!\n");
+        if (player.key > 0)
+        {
+            game.map[player.pos[0]][player.pos[1]]= 0;
+            printf("You've used a Key to open the Lock!");
+            player.key--;
+            return 1;
+        }
+        else
+        {
+            printf("You don't have any Key to open the Lock!\n");
+            return 0;
+        }
+    }
+
+    if (map_tile == 7)
+    {
+        game.map[player.pos[0]][player.pos[1]]= 0;
+        printf("You stepped on a trap!\nYou lost 1 HP!\n");
+        player.health--;
+        return 1;
+    }
+
+    if (map_tile == 8)
+    {
+        game.map[player.pos[0]][player.pos[1]]= 0;
+        printf("You met a monster on your way!\nYou lost 1 HP by fighting him!\n");
+        player.health--;
+        return 1;
+    }
+
+}
+
+
+
+/* ------------------------------ */
+
+/* ----- Draw Functions ----- */
+
+/* ------------------------------ */
 void draw()
 {
     /* Clear the window */
-    SDL_RenderClear(rend);
+    SDL_RenderClear(game.rend);
 
     /* Draw texture */
     draw_map();
 
     /* Render to the window */
-    SDL_RenderPresent(rend);
+    SDL_RenderPresent(game.rend);
 
     /* FPS */
     SDL_Delay(1000/FPS);
@@ -329,11 +440,11 @@ void draw_map()
             t = game.map[l][c];
             tile[t].rect.y = 32*l;
             tile[t].rect.x = 32*c;
-            SDL_RenderCopy(rend, tile[t].text, NULL, &tile[t].rect);
+            SDL_RenderCopy(game.rend, tile[t].text, NULL, &tile[t].rect);
         }
     }
-    player.rect.x = 32 * player.pos[0];
-    player.rect.y = 32 * player.pos[1];
-    SDL_RenderCopy(rend, player.text, NULL, &player.rect);
+    player.rect.x = 32 * player.pos[1];
+    player.rect.y = 32 * player.pos[0];
+    SDL_RenderCopy(game.rend, player.text, NULL, &player.rect);
 }
 
