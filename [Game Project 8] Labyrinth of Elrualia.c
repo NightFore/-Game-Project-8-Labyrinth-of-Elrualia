@@ -12,9 +12,7 @@
 
 /** 0: Grass | 1: Flower | 2: Tree | 3: Rock | 4: Key | 5: Coin | 6: Lock | 7: Trap | 8: Monster **/
 
-int playing = 0;
 char PROJECT_TITLE[] = "Labyrinth of Elrualia";
-
 
 
 
@@ -73,16 +71,15 @@ SDL_Rect dest;
 /* ------------------------------ */
 int main(int argc, char *argv[])
 {
+    init_SDL();
     init();
     load();
     while (!game.playing)
     {
         events();
-        update();
         draw();
     }
 
-    quit_game();
     return 0;
 }
 
@@ -112,7 +109,6 @@ void init()
 {
     game.playing = 0;
     srand(time(NULL));
-    init_SDL();
 
     game.tile_height = WINDOW_HEIGHT / TILESIZE;
     game.tile_width = WINDOW_WIDTH / TILESIZE;
@@ -275,6 +271,7 @@ void events()
                     player.pos[0]++;
                     printf("You cannot move to the top.\n");
                 }
+                status();
                 break;
 
             case SDL_SCANCODE_S:
@@ -285,6 +282,7 @@ void events()
                     player.pos[0]--;
                     printf("You cannot move to the bot.\n");
                 }
+                status();
                 break;
 
             case SDL_SCANCODE_A:
@@ -295,6 +293,7 @@ void events()
                     player.pos[1]++;
                     printf("You cannot move to the left.\n");
                 }
+                status();
                 break;
 
             case SDL_SCANCODE_D:
@@ -305,26 +304,58 @@ void events()
                     player.pos[1]--;
                     printf("You cannot move to the right.\n");
                 }
+                status();
                 break;
             }
             break;
+
         }
     }
 }
 
-
-
-/* ------------------------------ */
-
-/* ----- Draw Functions ----- */
-
-/* ------------------------------ */
-void update()
+void status()
 {
-    player_collide();
+    printf("\n");
+    printf("Health: %d\n", player.health);
+    printf("Flower(s): %d\n", player.flower);
+    printf("Coin(s): %d / 10\n", player.coin);
+    printf("Key(s): %d\n", player.key);
+    printf("Kill(s): %d\n", player.kill);
+    printf("\n");
 
+    win_condition();
 }
 
+void win_condition()
+{
+    if (player.coin >= 10)
+    {
+        printf("You've win! Game Over!\n");
+        new_game();
+    }
+
+    if (player.health <= 0)
+    {
+        printf("You've died! Game Over!\n");
+        new_game();
+    }
+}
+
+void new_game()
+{
+    int input;
+    printf("Do you want to play again? Type 0 to continue or any other number to stop playing.\n");
+    scanf("%d", &input);
+    if (input == 0)
+    {
+        init();
+        load();
+    }
+    else
+    {
+        quit_game();
+    }
+}
 
 int player_collide()
 {
@@ -340,6 +371,7 @@ int player_collide()
 
     if (map_tile == 1)
     {
+        game.map[player.pos[0]][player.pos[1]]= 0;
         printf("You walked on a Flower.\n");
         player.flower++;
         return 1;
@@ -379,7 +411,7 @@ int player_collide()
         if (player.key > 0)
         {
             game.map[player.pos[0]][player.pos[1]]= 0;
-            printf("You've used a Key to open the Lock!");
+            printf("You've used a Key to open the Lock!\n");
             player.key--;
             return 1;
         }
@@ -392,7 +424,6 @@ int player_collide()
 
     if (map_tile == 7)
     {
-        game.map[player.pos[0]][player.pos[1]]= 0;
         printf("You stepped on a trap!\nYou lost 1 HP!\n");
         player.health--;
         return 1;
